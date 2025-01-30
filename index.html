@@ -1,0 +1,78 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recettes Collaboratives</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Recettes Collaboratives</h1>
+            <button class="theme-toggle" onclick="toggleTheme()">Mode Sombre</button>
+        </div>
+
+        <input type="text" class="search-bar" placeholder="Rechercher une recette par titre ou ingrédient..." oninput="searchRecipes()">
+
+        <form class="recipe-form" id="recipe-form">
+            <h2>Ajouter une recette</h2>
+            <div class="form-group">
+                <label for="title">Titre</label>
+                <input type="text" id="title" required>
+            </div>
+            <div class="form-group">
+                <label for="author">Auteur</label>
+                <input type="text" id="author" required>
+            </div>
+            <div class="form-group">
+                <label for="difficulty">Difficulté</label>
+                <select id="difficulty" required>
+                    <option value="1">1 - Très facile</option>
+                    <option value="2">2 - Facile</option>
+                    <option value="3">3 - Moyen</option>
+                    <option value="4">4 - Difficile</option>
+                    <option value="5">5 - Très difficile</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="ingredients">Ingrédients (un par ligne)</label>
+                <textarea id="ingredients" rows="4" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="steps">Étapes (une par ligne)</label>
+                <textarea id="steps" rows="4" required></textarea>
+                <!-- Dans index.html, à l'intérieur du form avec id="recipe-form" -->
+<div class="form-group">
+    <label for="categories">Catégories</label>
+    <select id="categories" multiple>
+        <option value="Entrée">Entrée</option>
+        <option value="Plat principal">Plat principal</option>
+        <option value="Dessert">Dessert</option>
+        <option value="Boisson">Boisson</option>
+        <option value="Végétarien">Végétarien</option>
+        <option value="Vegan">Vegan</option>
+        <option value="Sans gluten">Sans gluten</option>
+    </select>
+</div>
+<div class="form-group">
+    <label for="prepTime">Temps de préparation (minutes)</label>
+    <input type="number" id="prepTime" min="0" required>
+</div>
+<div class="form-group">
+    <label for="cookTime">Temps de cuisson (minutes)</label>
+    <input type="number" id="cookTime" min="0" required>
+</div>
+            </div>
+            <button type="submit">Ajouter la recette</button>
+        </form>
+
+        <div class="recipes-grid" id="recipes-container"></div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

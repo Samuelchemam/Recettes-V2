@@ -1,0 +1,258 @@
+:root {
+    --primary-color: #6d28d9; /* Violet vif */
+    --secondary-color: #f59e0b; /* Orange */
+    --bg-color: #f8fafc; /* Fond clair */
+    --text-color: #1e293b; /* Texte foncé */
+    --card-bg: #ffffff; /* Fond des cartes */
+}
+
+.dark-mode {
+    --primary-color: #8b5cf6; /* Violet clair */
+    --secondary-color: #fbbf24; /* Orange clair */
+    --bg-color: #1e293b; /* Fond sombre */
+    --text-color: #f8fafc; /* Texte clair */
+    --card-bg: #334155; /* Fond des cartes sombre */
+}
+
+body {
+    font-family: system-ui, -apple-system, sans-serif;
+    margin: 0;
+    padding: 1rem;
+    background: linear-gradient(135deg, var(--bg-color), #e2e8f0);
+    color: var(--text-color);
+    transition: all 0.3s ease;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.theme-toggle {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.theme-toggle:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.search-bar {
+    margin-bottom: 2rem;
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    background: var(--bg-color);
+    color: var(--text-color);
+}
+
+.recipe-form {
+    background: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    margin-bottom: 2rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+input, textarea, select {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.25rem;
+    background: var(--bg-color);
+    color: var(--text-color);
+}
+
+button {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.recipes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.recipe-card {
+    background: var(--card-bg);
+    border-radius: 15px;
+    padding: 1rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    max-height: 150px;
+}
+
+.recipe-card.expanded {
+    max-height: 1000px;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-header {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    padding: 1rem;
+    border-radius: 12px;
+    margin: -1rem;
+    margin-bottom: 1rem;
+}
+
+.card-header h3 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.author {
+    font-style: italic;
+    opacity: 0.9;
+    margin-top: 0.5rem;
+}
+
+.difficulty {
+    font-size: 1.2rem;
+    color: #ffd700;
+    margin: 0.5rem 0;
+}
+
+.card-content {
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+}
+
+.expanded .card-content {
+    opacity: 1;
+    transform: translateY(0);
+    transition-delay: 0.2s;
+}
+
+.ingredients-section, .steps-section {
+    margin: 1.5rem 0;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+}
+
+.card-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.edit-btn {
+    background: #f59e0b;
+}
+
+.delete-btn {
+    background: #ef4444;
+}
+
+@media (max-width: 640px) {
+    .recipes-grid {
+        grid-template-columns: 1fr;
+    }
+}
+/* À la fin de style.css */
+select[multiple] {
+    height: 100px;
+    padding: 5px;
+}
+
+.filters {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background: var(--card-bg);
+    border-radius: 0.5rem;
+}
+
+.filters select, .filters button {
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    border: 1px solid #e5e7eb;
+}
+
+.favorite-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
+}
+
+.favorite-btn.active {
+    color: var(--secondary-color);
+}/* Ajoutez ceci à votre style.css */
+.edit-form {
+    padding: 1rem;
+    background: var(--card-bg);
+    border-radius: 0.5rem;
+}
+
+.edit-form .form-group {
+    margin-bottom: 1rem;
+}
+
+.edit-form label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+}
+
+.edit-form input,
+.edit-form select,
+.edit-form textarea {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.25rem;
+    background: var(--bg-color);
+    color: var(--text-color);
+}
+
+.edit-form select[multiple] {
+    height: 100px;
+}
+
+.edit-form button {
+    margin-right: 0.5rem;
+}
+
+.cancel-btn {
+    background-color: #ef4444 !important;
+}
