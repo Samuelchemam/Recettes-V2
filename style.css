@@ -107,22 +107,31 @@ button:hover {
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 1.5rem;
 }
-
 .recipe-card {
-        max-height: 500px;
-        overflow-y: auto; /* Ajoute une barre de défilement si nécessaire */
-        padding: 1rem;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
+    background: var(--card-bg);
+    border-radius: 15px;
+    padding: 1rem;
+    cursor: pointer;
+    transition: all 0.5s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    max-height: 200px; /* Hauteur compacte par défaut */
+}
 
 .recipe-card.expanded {
-    max-height: none; /* Permet d'expandre sans limitation */
+    max-height: 1000px; /* Permet à la carte de se déplier complètement */
+    transition: all 0.8s ease; /* Animation fluide lors du dépliage */
 }
 
 .card-content {
-    opacity: 1; /* Toujours visible */
-    transform: none; /* Supprime l'effet de translation */
-    transition: none; /* Supprime les délais d’affichage */
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.5s ease;
+}
+
+.recipe-card.expanded .card-content {
+    opacity: 1;
+    transform: translateY(0);
 }
 .card-header {
     background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
