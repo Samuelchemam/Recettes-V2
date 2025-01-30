@@ -127,10 +127,10 @@ function displayRecipes(recipesToShow) {
 function toggleExpand(index) {
     const card = document.querySelectorAll('.recipe-card')[index];
     const isExpanded = card.getAttribute('data-expanded') === 'true';
+    
     card.setAttribute('data-expanded', !isExpanded);
     card.classList.toggle('expanded');
 }
-
 // Supprimer une recette
 function deleteRecipe(index) {
     const recipeId = recipes[index].id;
