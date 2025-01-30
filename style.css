@@ -112,21 +112,20 @@ button:hover {
     border-radius: 15px;
     padding: 1rem;
     cursor: pointer;
-    transition: all 0.5s ease;
+    transition: max-height 0.5s ease, padding 0.3s ease;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     overflow: hidden;
-    max-height: 200px; /* Hauteur compacte par défaut */
+    max-height: 250px; /* Aperçu limité */
 }
 
 .recipe-card.expanded {
-    max-height: 1000px; /* Permet à la carte de se déplier complètement */
-    transition: all 0.8s ease; /* Animation fluide lors du dépliage */
+    max-height: 100%; /* S'adapte automatiquement au contenu */
 }
 
 .card-content {
     opacity: 0;
     transform: translateY(10px);
-    transition: all 0.5s ease;
+    transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 .recipe-card.expanded .card-content {
