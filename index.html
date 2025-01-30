@@ -46,27 +46,26 @@
             <div class="form-group">
                 <label for="steps">Étapes (une par ligne)</label>
                 <textarea id="steps" rows="4" required></textarea>
-                <!-- Dans index.html, à l'intérieur du form avec id="recipe-form" -->
-<div class="form-group">
-    <label for="categories">Catégories</label>
-    <select id="categories" multiple>
-        <option value="Entrée">Entrée</option>
-        <option value="Plat principal">Plat principal</option>
-        <option value="Dessert">Dessert</option>
-        <option value="Boisson">Boisson</option>
-        <option value="Végétarien">Végétarien</option>
-        <option value="Vegan">Vegan</option>
-        <option value="Sans gluten">Sans gluten</option>
-    </select>
-</div>
-<div class="form-group">
-    <label for="prepTime">Temps de préparation (minutes)</label>
-    <input type="number" id="prepTime" min="0" required>
-</div>
-<div class="form-group">
-    <label for="cookTime">Temps de cuisson (minutes)</label>
-    <input type="number" id="cookTime" min="0" required>
-</div>
+            </div>
+            <div class="form-group">
+                <label for="categories">Catégories</label>
+                <select id="categories" multiple>
+                    <option value="Entrée">Entrée</option>
+                    <option value="Plat principal">Plat principal</option>
+                    <option value="Dessert">Dessert</option>
+                    <option value="Boisson">Boisson</option>
+                    <option value="Végétarien">Végétarien</option>
+                    <option value="Vegan">Vegan</option>
+                    <option value="Sans gluten">Sans gluten</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="prepTime">Temps de préparation (minutes)</label>
+                <input type="number" id="prepTime" min="0" required>
+            </div>
+            <div class="form-group">
+                <label for="cookTime">Temps de cuisson (minutes)</label>
+                <input type="number" id="cookTime" min="0" required>
             </div>
             <button type="submit">Ajouter la recette</button>
         </form>
