@@ -87,13 +87,13 @@ function displayRecipes(recipesToShow) {
                 </div>
                 
                 <div class="card-content">
-                    <!-- Ajout des temps de préparation et cuisson -->
+                    <!-- Affichage des temps de préparation et de cuisson -->
                     <div class="time-info">
                         <p>⏲️ Préparation : ${recipe.prepTime} min</p>
                         <p>🔥 Cuisson : ${recipe.cookTime} min</p>
                     </div>
                     
-                    <!-- Ajout des catégories -->
+                    <!-- Affichage des catégories sous forme de tags -->
                     <div class="categories-tags">
                         ${recipe.categories ? recipe.categories.map(cat => 
                             `<span class="category-tag">${cat}</span>`
@@ -119,7 +119,7 @@ function displayRecipes(recipesToShow) {
         `).join('');
         animateDifficultyStars();
     } catch (e) {
-        console.error("Erreur lors de l'affichage des recettes:", e);
+        console.error("Erreur lors de l'affichage des recettes :", e);
         recipesContainer.innerHTML = '<p>Erreur lors de l\'affichage des recettes</p>';
     }
 }
