@@ -266,19 +266,20 @@ select[multiple] {
     padding: 0.5rem;
     background: rgba(var(--primary-color-rgb), 0.1);
     border-radius: 8px;
+    font-size: 0.9rem;
 }
 
 .time-info p {
     margin: 0;
     padding: 0.5rem;
+    font-weight: bold;
 }
 
-/* Styles pour les tags de catégories */
 .categories-tags {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
-    margin: 1rem 0;
+    margin-bottom: 1rem;
 }
 
 .category-tag {
