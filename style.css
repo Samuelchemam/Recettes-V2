@@ -116,14 +116,18 @@ button:hover {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     overflow: hidden;
-    max-height: 150px;
+    max-height: none; /* Supprimer la limitation de la hauteur */
 }
 
 .recipe-card.expanded {
-    max-height: 1000px;
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    max-height: none; /* Permet d'expandre sans limitation */
 }
 
+.card-content {
+    opacity: 1; /* Toujours visible */
+    transform: none; /* Supprime l'effet de translation */
+    transition: none; /* Supprime les délais d’affichage */
+}
 .card-header {
     background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
     color: white;
