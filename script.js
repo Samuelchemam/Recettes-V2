@@ -455,7 +455,6 @@ function applyFilters() {
 // Modifier votre fonction loadRecipes existante
 function loadRecipes() {
     showLoadingState();
-    
     database.ref('recipes').once('value', (snapshot) => {
         recipes = [];
         snapshot.forEach((childSnapshot) => {
@@ -491,39 +490,11 @@ function loadRecipes() {
             displayRecipes(favoriteRecipes);
     showNotification("Affichage des favoris", "success");
 }
-// Puis modifiez votre fonction loadRecipes existante
-// AVANT
-function loadRecipes() {
-    showLoadingState();
-    database.ref('recipes').once('value', (snapshot) => {
-        recipes = [];
-        snapshot.forEach((childSnapshot) => {
-            const recipe = { id: childSnapshot.key, ...childSnapshot.val() };
-            recipes.push(recipe);
-        });
-        displayRecipes(recipes);
-    });
-}
-
-// APRÈS
-function loadRecipes() {
-    showLoadingState();
-    
-    database.ref('recipes').once('value', (snapshot) => {
-        recipes = [];
-        snapshot.forEach((childSnapshot) => {
-            const recipe = { id: childSnapshot.key, ...childSnapshot.val() };
-            recipes.push(recipe);
-        });
-        displayRecipes(recipes);
-        
         // Ajoutez cette ligne pour mettre à jour la section favoris
         const favoritesContainer = document.getElementById('favorites-container');
         if (!favoritesContainer.classList.contains('hidden')) {
             toggleFavoritesView();
         }
-    });
-}
     database.ref('recipes').once('value', (snapshot) => {
         recipes = [];
         snapshot.forEach((childSnapshot) => {
