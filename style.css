@@ -124,12 +124,15 @@ button:hover {
     border-radius: 15px;
     padding: 1rem;
     cursor: pointer;
-    transition: max-height 0.5s ease, padding 0.3s ease;
+    transition: all 0.3s ease;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    max-height: 250px; /* Aperçu limité */
+    margin-bottom: 1rem;
+    position: relative;
 }
-
+.recipe-card:not(.expanded) {
+    max-height: 200px;
+    overflow: hidden;
+}
 .recipe-card.expanded {
     max-height: 100%; /* S'adapte automatiquement au contenu */
 }
@@ -144,13 +147,14 @@ button:hover {
     opacity: 1;
     transform: translateY(0);
 }
+
 .card-header {
+    position: relative;
+    margin: -1rem -1rem 1rem -1rem;
+    padding: 1rem;
     background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
     color: white;
-    padding: 1rem;
-    border-radius: 12px;
-    margin: -1rem;
-    margin-bottom: 1rem;
+    border-radius: 15px 15px 0 0;
 }
 
 .card-header h3 {
@@ -171,9 +175,8 @@ button:hover {
 }
 
 .card-content {
-    opacity: 0;
-    transform: translateY(10px);
-    transition: all 0.3s ease;
+    display: none;
+    padding-top: 1rem;
 }
 
 .expanded .card-content {
@@ -181,7 +184,9 @@ button:hover {
     transform: translateY(0);
     transition-delay: 0.2s;
 }
-
+.recipe-card.expanded .card-content {
+    display: block;
+}
 .ingredients-section, .steps-section {
     margin: 1.5rem 0;
     padding: 1rem;
