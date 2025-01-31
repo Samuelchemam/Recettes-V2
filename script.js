@@ -43,135 +43,60 @@ function loadRecipes() {
         showNotification("Erreur lors du chargement des recettes", "error");
     });
 }
+
 function displayRecipes(recipesToShow) {
     try {
-        // Ajout d'un conteneur pour la grille
-        recipesContainer.innerHTML = '<div class="recipes-grid">' + 
-            recipesToShow.map((recipe, index) => `
-                <div class="recipe-card" onclick="toggleExpand(${index})" data-expanded="false">
-                    <div class="card-header">
-                        <div class="card-header-top">
-                            <h3>${recipe.title}</h3>
-                        </div>
-                        <div class="difficulty">
-                            ${'★'.repeat(recipe.difficulty)}${'☆'.repeat(5 - recipe.difficulty)}
-                        </div>
-                        <p class="author">Par ${recipe.author}</p>
-                        <div class="recipe-quick-info">
-                            <span class="time-badge">⏱️ ${recipe.prepTime + recipe.cookTime} min</span>
-                        </div>
-                        <div class="categories-tags">
-                            ${recipe.categories ? recipe.categories.map(cat => 
-                                `<span class="category-tag">${cat}</span>`
-                            ).join('') : ''}
-                        </div>
+        recipesContainer.innerHTML = recipesToShow.map((recipe, index) => `
+            <div class="recipe-card" onclick="toggleExpand(${index})" data-expanded="false">
+                <div class="card-header">
+                    <div class="card-header-top">
+                        <h3>${recipe.title}</h3>
                     </div>
-                    <div class="card-content">
-                        <div class="time-info">
-                            <p>⏲️ Préparation : ${recipe.prepTime} min</p>
-                            <p>🔥 Cuisson : ${recipe.cookTime} min</p>
-                        </div>
-                        <div class="ingredients-section">
-                            <h4>Ingrédients :</h4>
-                            <ul>${recipe.ingredients.map(i => `<li>${i}</li>`).join('')}</ul>
-                        </div>
-                        <div class="steps-section">
-                            <h4>Étapes :</h4>
-                            <ol>${recipe.steps.map(s => `<li>${s}</li>`).join('')}</ol>
-                        </div>
-                        <div class="recipe-actions-container">
-                            <div class="card-actions">
-                                <div class="primary-actions">
-                                    <button class="edit-btn" onclick="editRecipe(${index}); event.stopPropagation()">✏️ Modifier</button>
-                                    <button class="delete-btn" onclick="deleteRecipe(${index}); event.stopPropagation()">🗑️ Supprimer</button>
-                                </div>
-                                <div class="secondary-actions">
-                                    <button class="comments-btn" onclick="toggleComments(${index}); event.stopPropagation()">💬 Commentaires</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="comments-section hidden" data-recipe-id="${recipe.id}" onclick="event.stopPropagation()">
-                            <div class="comments-list">
-                                ${recipe.comments ? 
-                                    Object.entries(recipe.comments).map(([commentId, comment]) => `
-                                        <div class="comment">
-                                            <div class="comment-content">
-                                                <strong>${comment.author}</strong>
-                                                <p>${comment.text}</p>
-                                                <small>${comment.date}</small>
-                                            </div>
-                                            <div class="comment-actions">
-                                                <button class="edit-comment-btn" onclick="editComment('${recipe.id}', '${commentId}', this); event.stopPropagation()">✏️</button>
-                                                <button class="delete-comment-btn" onclick="deleteComment('${recipe.id}', '${commentId}'); event.stopPropagation()">🗑️</button>
-                                            </div>
-                                        </div>
-                                    `).join('') 
-                                    : '<p>Aucun commentaire pour le moment</p>'
-                                }
-                            </div>
-                            <div class="add-comment-form">
-                                <input type="text" class="comment-author" placeholder="Votre nom" onclick="event.stopPropagation()">
-                                <textarea class="comment-text" placeholder="Votre commentaire" onclick="event.stopPropagation()"></textarea>
-                                <button class="submit-comment" onclick="addComment('${recipe.id}', this); event.stopPropagation()">
-                                    Ajouter un commentaire
-                                </button>
-                            </div>
-                        </div>
+                    <div class="difficulty">
+                        ${'★'.repeat(recipe.difficulty)}${'☆'.repeat(5 - recipe.difficulty)}
+                    </div>
+                    <p class="author">Par ${recipe.author}</p>
+                    <div class="recipe-quick-info">
+                        <span class="time-badge">⏱️ ${recipe.prepTime + recipe.cookTime} min</span>
+                    </div>
+                    <div class="categories-tags">
+                        ${recipe.categories ? recipe.categories.map(cat => 
+                            `<span class="category-tag">${cat}</span>`
+                        ).join('') : ''}
                     </div>
                 </div>
-            `).join('') + '</div>';
+                <div class="card-content">
+                    <div class="time-info">
+                        <p>⏲️ Préparation : ${recipe.prepTime} min</p>
+                        <p>🔥 Cuisson : ${recipe.cookTime} min</p>
+                    </div>
+                    <div class="ingredients-section">
+                        <h4>Ingrédients :</h4>
+                        <ul>${recipe.ingredients.map(i => `<li>${i}</li>`).join('')}</ul>
+                    </div>
+                    <div class="steps-section">
+                        <h4>Étapes :</h4>
+                        <ol>${recipe.steps.map(s => `<li>${s}</li>`).join('')}</ol>
+                    </div>
+                    <div class="card-actions">
+                        <button class="edit-btn" onclick="editRecipe(${index}); event.stopPropagation()">✏️ Modifier</button>
+                        <button class="delete-btn" onclick="deleteRecipe(${index}); event.stopPropagation()">🗑️ Supprimer</button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
         animateDifficultyStars();
     } catch (e) {
         console.error("Erreur lors de l'affichage des recettes :", e);
         showNotification("Erreur d'affichage", "error");
     }
 }
-function toggleComments(index) {
-    Event.stopPropagation();
-    const card = document.querySelectorAll('.recipe-card')[index];
-    const commentsSection = card.querySelector('.comments-section');
-    if (commentsSection) {
-        commentsSection.classList.toggle('hidden');
-    }
-}
 
-function addComment(recipeId, buttonElement) {
-    const commentSection = buttonElement.closest('.comments-section');
-    const authorInput = commentSection.querySelector('.comment-author');
-    const textInput = commentSection.querySelector('.comment-text');
-    
-    const author = authorInput.value.trim();
-    const text = textInput.value.trim();
-
-    if (!author || !text) {
-        showNotification("Veuillez remplir tous les champs", "error");
-        return;
-    }
-
-    const comment = {
-        author: author,
-        text: text,
-        date: new Date().toLocaleDateString()
-    };
-
-    const commentsRef = database.ref(`recipes/${recipeId}/comments`);
-    
-    commentsRef.push(comment)
-        .then(() => {
-            authorInput.value = '';
-            textInput.value = '';
-            loadRecipes();
-            showNotification("Commentaire ajouté avec succès", "success");
-        })
-        .catch(error => {
-            console.error("Erreur lors de l'ajout du commentaire:", error);
-            showNotification("Erreur lors de l'ajout du commentaire", "error");
-        });
-}
 // Autres fonctions existantes...
 function toggleTheme() {
     document.body.classList.toggle('dark-mode');
 }
+
 // Formulaire d'ajout de recette
 recipeForm.addEventListener('submit', function(event) {
     event.preventDefault();
