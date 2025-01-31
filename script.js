@@ -367,23 +367,30 @@ function applyFilters() {
 
     let filteredRecipes = [...recipes];
 
+    // Filtre par catégorie
     if (category) {
         filteredRecipes = filteredRecipes.filter(recipe => 
-            recipe.categories.includes(category));
+            recipe.categories && recipe.categories.includes(category));
     }
 
+    // Filtre par difficulté
     if (difficulty) {
         filteredRecipes = filteredRecipes.filter(recipe => 
             recipe.difficulty === parseInt(difficulty));
     }
 
+    // Filtre par temps total
     if (time) {
         filteredRecipes = filteredRecipes.filter(recipe => {
             const totalTime = recipe.prepTime + recipe.cookTime;
+            if (time === "61") {
+                return totalTime > 60;
+            }
             return totalTime <= parseInt(time);
         });
     }
 
+    // Afficher les recettes filtrées
     displayRecipes(filteredRecipes);
 }
 
