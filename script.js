@@ -79,37 +79,55 @@ function displayRecipes(recipesToShow) {
         recipesContainer.innerHTML = recipesToShow.map((recipe, index) => `
             <div class="recipe-card" onclick="toggleExpand(${index})" data-expanded="false">
                 <div class="card-header">
-                    <h3>${recipe.title}</h3>
+                    <!-- Nouvelle section header-top -->
+                    <div class="card-header-top">
+                        <h3>${recipe.title}</h3>
+                        <button class="favorite-btn" onclick="toggleFavorite(${index}); event.stopPropagation()">
+                            ${recipe.favorite ? '❤️' : '🤍'}
+                        </button>
+                    </div>
+
+                    <!-- Conservation de la difficulté existante -->
                     <div class="difficulty">
                         ${'★'.repeat(recipe.difficulty)}${'☆'.repeat(5 - recipe.difficulty)}
                     </div>
+
+                    <!-- Conservation de l'auteur -->
                     <p class="author">Par ${recipe.author}</p>
-                </div>
-                
-                <div class="card-content">
-                    <!-- Affichage des temps de préparation et de cuisson -->
-                    <div class="time-info">
-                        <p>⏲️ Préparation : ${recipe.prepTime} min</p>
-                        <p>🔥 Cuisson : ${recipe.cookTime} min</p>
+
+                    <!-- Nouvelle section d'informations rapides -->
+                    <div class="recipe-quick-info">
+                        <span class="time-badge">⏱️ ${recipe.prepTime + recipe.cookTime} min</span>
                     </div>
-                    
-                    <!-- Affichage des catégories sous forme de tags -->
+
+                    <!-- Conservation des catégories avec nouveau style -->
                     <div class="categories-tags">
                         ${recipe.categories ? recipe.categories.map(cat => 
                             `<span class="category-tag">${cat}</span>`
                         ).join('') : ''}
                     </div>
+                </div>
+                
+                <div class="card-content">
+                    <!-- Conservation des temps de préparation et cuisson -->
+                    <div class="time-info">
+                        <p>⏲️ Préparation : ${recipe.prepTime} min</p>
+                        <p>🔥 Cuisson : ${recipe.cookTime} min</p>
+                    </div>
 
+                    <!-- Section ingrédients conservée -->
                     <div class="ingredients-section">
                         <h4>Ingrédients :</h4>
                         <ul>${recipe.ingredients.map(i => `<li>${i}</li>`).join('')}</ul>
                     </div>
                     
+                    <!-- Section étapes conservée -->
                     <div class="steps-section">
                         <h4>Étapes :</h4>
                         <ol>${recipe.steps.map(s => `<li>${s}</li>`).join('')}</ol>
                     </div>
                     
+                    <!-- Conservation des boutons d'action -->
                     <div class="card-actions">
                         <button class="edit-btn" onclick="editRecipe(${index}); event.stopPropagation()">✏️ Modifier</button>
                         <button class="delete-btn" onclick="deleteRecipe(${index}); event.stopPropagation()">🗑️ Supprimer</button>
@@ -120,7 +138,7 @@ function displayRecipes(recipesToShow) {
         animateDifficultyStars();
     } catch (e) {
         console.error("Erreur lors de l'affichage des recettes :", e);
-        recipesContainer.innerHTML = '<p>Erreur lors de l\'affichage des recettes</p>';
+        showNotification("Erreur d'affichage", "error");
     }
 }
 // Basculer l'expansion des cartes

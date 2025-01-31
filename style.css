@@ -325,3 +325,107 @@ select[multiple] {
     border-radius: 1rem;
     font-size: 0.875rem;
 }
+/* ===== NOUVELLES AMÉLIORATIONS UI ===== */
+/* Styles pour les cartes améliorées */
+.card-header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.recipe-quick-info {
+    display: flex;
+    gap: 1rem;
+    margin: 0.5rem 0;
+}
+
+.time-badge {
+    background: rgba(var(--primary-color-rgb), 0.1);
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+/* Styles pour le bouton favori */
+.favorite-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    transition: transform 0.2s ease;
+    opacity: 0.7;
+}
+
+.favorite-btn:hover {
+    transform: scale(1.2);
+    opacity: 1;
+}
+
+.favorite-btn.active {
+    opacity: 1;
+    color: #ff4b4b;
+}
+
+/* Animation pour les cartes */
+.recipe-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.recipe-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* Amélioration des badges de catégories */
+.category-tag {
+    background: var(--primary-color);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.8rem;
+    margin: 0.25rem;
+    display: inline-block;
+    transition: transform 0.2s ease;
+}
+
+.category-tag:hover {
+    transform: scale(1.05);
+}
+
+/* Notification styles */
+.notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 1rem 2rem;
+    border-radius: 0.5rem;
+    background: var(--primary-color);
+    color: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    animation: slideIn 0.3s ease forwards;
+    z-index: 1000;
+}
+
+.notification.error {
+    background: #ef4444;
+}
+
+.notification.success {
+    background: #22c55e;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
