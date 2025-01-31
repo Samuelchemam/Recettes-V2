@@ -82,9 +82,9 @@ function displayRecipes(recipesToShow) {
                     <!-- Nouvelle section header-top -->
                     <div class="card-header-top">
                         <h3>${recipe.title}</h3>
-                        <button class="favorite-btn" onclick="toggleFavorite(${index}); event.stopPropagation()">
-                            ${recipe.favorite ? '❤️' : '🤍'}
-                        </button>
+                        <button class="favorite-btn ${recipe.favorite ? 'active' : ''}" onclick="toggleFavorite('${recipe.id}'); event.stopPropagation()">
+    ${recipe.favorite ? '❤️' : '🤍'}
+</button>
                     </div>
 
                     <!-- Conservation de la difficulté existante -->
@@ -141,32 +141,41 @@ function displayRecipes(recipesToShow) {
         showNotification("Erreur d'affichage", "error");
     }
 }
-function toggleFavorite(index) {
-    const recipe = recipes[index];
-    const recipeId = recipe.id;
+function toggleFavorite(recipeId) {
+    const recipeRef = database.ref('recipes/' + recipeId);
     
-    const newFavoriteState = !recipe.favorite;
-    
-    database.ref('recipes/' + recipeId).update({
-        favorite: newFavoriteState
-    }).then(() => {
-        recipe.favorite = newFavoriteState;
+    recipeRef.once('value').then((snapshot) => {
+        const recipe = snapshot.val();
+        const newFavoriteState = !recipe.favorite;
         
-        const favoriteBtn = document.querySelectorAll('.favorite-btn')[index];
-        favoriteBtn.innerHTML = newFavoriteState ? '❤️' : '🤍';
-        
-        favoriteBtn.classList.add('favorite-animation');
-        setTimeout(() => {
-            favoriteBtn.classList.remove('favorite-animation');
-        }, 500);
-        
-        showNotification(
-            newFavoriteState ? 'Ajouté aux favoris' : 'Retiré des favoris',
-            'success'
-        );
-    }).catch(error => {
-        console.error("Erreur lors de la mise à jour du favori :", error);
-        showNotification("Erreur lors de la mise à jour du favori", "error");
+        recipeRef.update({
+            favorite: newFavoriteState
+        }).then(() => {
+            // Mise à jour locale
+            const index = recipes.findIndex(r => r.id === recipeId);
+            if (index !== -1) {
+                recipes[index].favorite = newFavoriteState;
+                
+                // Mise à jour visuelle immédiate
+                const favoriteBtn = document.querySelectorAll('.favorite-btn')[index];
+                favoriteBtn.innerHTML = newFavoriteState ? '❤️' : '🤍';
+                favoriteBtn.classList.toggle('active');
+                
+                // Animation
+                favoriteBtn.classList.add('favorite-animation');
+                setTimeout(() => {
+                    favoriteBtn.classList.remove('favorite-animation');
+                }, 500);
+            }
+            
+            showNotification(
+                newFavoriteState ? 'Ajouté aux favoris' : 'Retiré des favoris',
+                'success'
+            );
+        }).catch(error => {
+            console.error("Erreur lors de la mise à jour du favori :", error);
+            showNotification("Erreur lors de la mise à jour du favori", "error");
+        });
     });
 }
 // Basculer l'expansion des cartes
