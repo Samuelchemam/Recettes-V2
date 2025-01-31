@@ -35,9 +35,31 @@ function loadRecipes() {
     });//
     
 }
-const favoritesContainer = document.getElementById('favorites-container');
-        if (!favoritesContainer.classList.contains('hidden')) {
-            toggleFavoritesView();
+        function toggleFavoritesView() {
+            const recipesGrid = document.querySelector('.recipes-grid');
+        recipesGrid.parentNode.insertBefore(returnBtn, recipesGrid);
+            // Si aucun favori, afficher un message
+            if (favoriteRecipes.length === 0) {
+                showNotification("Aucune recette en favoris", "info");
+                return;
+            }
+            
+            // Afficher uniquement les recettes favorites
+            displayRecipes(favoriteRecipes);
+            showNotification("Affichage des favoris", "success");
+            // Ajouter une option pour revenir à toutes les recettes
+            const returnBtn = document.createElement('button');
+            returnBtn.className = 'return-btn';
+            returnBtn.innerHTML = '← Retour à toutes les recettes';
+            returnBtn.onclick = () => {
+                returnBtn.remove();
+                displayRecipes(recipes);
+            };
+            
+            // Insérer le bouton de retour avant la grille de recettes
+            recipesGrid.parentNode.insertBefore(returnBtn, recipesGrid);
+            
+            showNotification("Affichage des favoris", "success");
         }
 // Au début de script.js, après la déclaration des variables existantes
 const CATEGORIES = [
@@ -432,30 +454,43 @@ function applyFilters() {
 }
 // Modifier votre fonction loadRecipes existante
 function loadRecipes() {
-    showLoadingState(); // Ajout de l'état de chargement
-    // Ajoutez cette nouvelle fonction après showLoadingState
-function toggleFavoritesView() {
-    const favoritesContainer = document.getElementById('favorites-container');
-    const isHidden = favoritesContainer.classList.contains('hidden');
+    showLoadingState();
     
-    if (isHidden) {
-        // Afficher les favoris
+    database.ref('recipes').once('value', (snapshot) => {
+        recipes = [];
+        snapshot.forEach((childSnapshot) => {
+            const recipe = { id: childSnapshot.key, ...childSnapshot.val() };
+            recipes.push(recipe);
+        });
+        displayRecipes(recipes);
+        initializeFilters();
+    }, (error) => {
+        console.error("Erreur lors du chargement des recettes :", error);
+        showNotification("Erreur lors du chargement des recettes", "error");
+    });
+} // Ajout de l'état de chargement
+    // Ajoutez cette nouvelle fonction après showLoadingState
+        // Filtrer les recettes favorites
         const favoriteRecipes = recipes.filter(recipe => recipe.favorite);
-        favoritesContainer.innerHTML = favoriteRecipes.map((recipe, index) => `
-            <div class="recipe-card mini">
-                <h4>${recipe.title}</h4>
-                <p class="author">Par ${recipe.author}</p>
-                <button onclick="toggleFavorite('${recipe.id}', ${index})" class="favorite-btn active">
-                    ❤️
-                </button>
-            </div>
-        `).join('');
-        favoritesContainer.classList.remove('hidden');
-    } else {
-        favoritesContainer.classList.add('hidden');
-    }
+        
+        // Vérifier s'il y a des favoris
+        if (favoriteRecipes.length === 0) {
+            showNotification("Aucune recette en favoris", "info");
+            return;
+        }
+        
+        // Créer le bouton retour s'il n'existe pas déjà
+        if (!document.querySelector('.return-btn')) {
+            const returnBtn = document.createElement('button');
+            returnBtn.className = 'return-btn';
+            returnBtn.innerHTML = '← Retour à toutes les recettes';
+            returnBtn.onclick = () => {
+                returnBtn.remove();
+                displayRecipes(recipes);
+            };
+            displayRecipes(favoriteRecipes);
+    showNotification("Affichage des favoris", "success");
 }
-
 // Puis modifiez votre fonction loadRecipes existante
 // AVANT
 function loadRecipes() {
@@ -501,17 +536,6 @@ function loadRecipes() {
         console.error("Erreur lors du chargement des recettes :", error);
         showNotification("Erreur lors du chargement des recettes", "error");
     });
-}
-
-// Ajouter cette fonction juste après
-function showLoadingState() {
-    recipesContainer.innerHTML = Array(6).fill(`
-        <div class="recipe-card loading-skeleton">
-            <div class="skeleton-header"></div>
-            <div class="skeleton-body"></div>
-        </div>
-    `).join('');
-}
 // État de chargement
 function showLoadingState() {
     recipesContainer.innerHTML = Array(6).fill(`
