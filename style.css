@@ -346,3 +346,26 @@ input, textarea, select {
     color: white;
     margin-left: 0.5rem;
 }
+/* Styles pour les actions de la carte */
+.card-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.primary-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.secondary-actions {
+    display: flex;
+    justify-content: flex-start;
+}
+
+.comments-btn {
+    background: var(--secondary-color);
+    width: 100%; /* Le bouton prend toute la largeur */
+    margin-top: 0.5rem;
+}

@@ -80,9 +80,12 @@ function displayRecipes(recipesToShow) {
                     <div class="card-actions">
                         <button class="edit-btn" onclick="editRecipe(${index}); event.stopPropagation()">✏️ Modifier</button>
                         <button class="delete-btn" onclick="deleteRecipe(${index}); event.stopPropagation()">🗑️ Supprimer</button>
-                        <button class="comments-btn" onclick="toggleComments(${index}); event.stopPropagation()">💬 Commentaires</button>
+
                     </div>
-                    <div class="comments-section hidden" data-recipe-id="${recipe.id}">
+                    <div class="secondary-actions">
+                    <button class="comments-btn" onclick="toggleComments(${index}); event.stopPropagation()">💬 Commentaires</button>
+                    </div>
+                    <div class="comments-section hidden" data-recipe-id="${recipe.id}" onclick="event.stopPropagation()">
                         <div class="comments-list">
                             ${recipe.comments ? 
                                 Object.entries(recipe.comments).map(([key, comment]) => `
@@ -96,8 +99,8 @@ function displayRecipes(recipesToShow) {
                             }
                         </div>
                         <div class="add-comment-form">
-                            <input type="text" class="comment-author" placeholder="Votre nom">
-                            <textarea class="comment-text" placeholder="Votre commentaire"></textarea>
+                        <input type="text" class="comment-author" placeholder="Votre nom" onclick="event.stopPropagation()">
+                        <textarea class="comment-text" placeholder="Votre commentaire" onclick="event.stopPropagation()">
                             <button class="submit-comment" onclick="addComment('${recipe.id}', this); event.stopPropagation()">
                                 Ajouter un commentaire
                             </button>
