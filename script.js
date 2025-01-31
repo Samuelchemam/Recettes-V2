@@ -78,9 +78,9 @@ function displayRecipes(recipesToShow) {
                         <ol>${recipe.steps.map(s => `<li>${s}</li>`).join('')}</ol>
                     </div>
                     <div class="card-actions">
+                     <div class="primary-actions">
                         <button class="edit-btn" onclick="editRecipe(${index}); event.stopPropagation()">✏️ Modifier</button>
                         <button class="delete-btn" onclick="deleteRecipe(${index}); event.stopPropagation()">🗑️ Supprimer</button>
-
                     </div>
                     <div class="secondary-actions">
                     <button class="comments-btn" onclick="toggleComments(${index}); event.stopPropagation()">💬 Commentaires</button>
@@ -98,16 +98,13 @@ function displayRecipes(recipesToShow) {
                                 : '<p>Aucun commentaire pour le moment</p>'
                             }
                         </div>
-                        <div class="add-comment-form">
+                        <<div class="add-comment-form">
                         <input type="text" class="comment-author" placeholder="Votre nom" onclick="event.stopPropagation()">
-                        <textarea class="comment-text" placeholder="Votre commentaire" onclick="event.stopPropagation()">
-                            <button class="submit-comment" onclick="addComment('${recipe.id}', this); event.stopPropagation()">
-                                Ajouter un commentaire
-                            </button>
+                        <textarea class="comment-text" placeholder="Votre commentaire" onclick="event.stopPropagation()"></textarea>
+                        <button class="submit-comment" onclick="addComment('${recipe.id}', this); event.stopPropagation()">
+                        Ajouter un commentaire
+                        </button>
                         </div>
-                    </div>
-                </div>
-            </div>
         `).join('');
         animateDifficultyStars();
     } catch (e) {
