@@ -64,29 +64,32 @@ function displayRecipes(recipesToShow) {
                         ).join('') : ''}
                     </div>
                 </div>
-                <div class="card-content">
-                    <div class="time-info">
-                        <p>⏲️ Préparation : ${recipe.prepTime} min</p>
-                        <p>🔥 Cuisson : ${recipe.cookTime} min</p>
-                    </div>
-                    <div class="ingredients-section">
-                        <h4>Ingrédients :</h4>
-                        <ul>${recipe.ingredients.map(i => `<li>${i}</li>`).join('')}</ul>
-                    </div>
-                    <div class="steps-section">
-                        <h4>Étapes :</h4>
-                        <ol>${recipe.steps.map(s => `<li>${s}</li>`).join('')}</ol>
-                    </div>
-                    <div class="card-actions">
-                        <div class="primary-actions">
-                            <button class="edit-btn" onclick="editRecipe(${index}); event.stopPropagation()">✏️ Modifier</button>
-                            <button class="delete-btn" onclick="deleteRecipe(${index}); event.stopPropagation()">🗑️ Supprimer</button>
-                        </div>
-                        <div class="secondary-actions">
-                            <button class="comments-btn" onclick="toggleComments(${index}); event.stopPropagation()">💬 Commentaires</button>
-                        </div>
-                    </div>
-                    <div class="comments-section hidden" data-recipe-id="${recipe.id}" onclick="event.stopPropagation()">
+<div class="card-content">
+    <div class="time-info">
+        <p>⏲️ Préparation : ${recipe.prepTime} min</p>
+        <p>🔥 Cuisson : ${recipe.cookTime} min</p>
+    </div>
+    <div class="ingredients-section">
+        <h4>Ingrédients :</h4>
+        <ul>${recipe.ingredients.map(i => `<li>${i}</li>`).join('')}</ul>
+    </div>
+    <div class="steps-section">
+        <h4>Étapes :</h4>
+        <ol>${recipe.steps.map(s => `<li>${s}</li>`).join('')}</ol>
+    </div>
+    <div class="recipe-actions-container">
+        <div class="card-actions">
+            <div class="primary-actions">
+                <button class="edit-btn" onclick="editRecipe(${index}); event.stopPropagation()">✏️ Modifier</button>
+                <button class="delete-btn" onclick="deleteRecipe(${index}); event.stopPropagation()">🗑️ Supprimer</button>
+            </div>
+            <div class="secondary-actions">
+                <button class="comments-btn" onclick="toggleComments(${index}); event.stopPropagation()">💬 Commentaires</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="comments-section hidden" data-recipe-id="${recipe.id}" onclick="event.stopPropagation()">
                         <div class="comments-list">
                             ${recipe.comments ? 
                                 Object.entries(recipe.comments).map(([commentId, comment]) => `
@@ -123,7 +126,9 @@ function displayRecipes(recipesToShow) {
     }
 }
 function toggleComments(index) {
-    const commentsSection = document.querySelectorAll('.comments-section')[index];
+    Event.stopPropagation();
+    const card = document.querySelectorAll('.recipe-card')[index];
+    const commentsSection = card.querySelector('.comments-section');
     if (commentsSection) {
         commentsSection.classList.toggle('hidden');
     }
