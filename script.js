@@ -300,7 +300,12 @@ function initializeFilters() {
     const filterDifficulty = document.querySelector('.filter-difficulty');
     const filterTime = document.querySelector('.filter-time');
     
-    // Remplir les catégories dynamiquement
+    // Vider d'abord les options existantes
+    filterCategory.innerHTML = '<option value="">Toutes les catégories</option>';
+    filterDifficulty.innerHTML = '<option value="">Toutes les difficultés</option>';
+    filterTime.innerHTML = '<option value="">Tous les temps</option>';
+
+    // Remplir les catégories
     CATEGORIES.forEach(category => {
         const option = document.createElement('option');
         option.value = category;
@@ -308,12 +313,53 @@ function initializeFilters() {
         filterCategory.appendChild(option);
     });
 
+    // Remplir les difficultés
+    const difficulties = [
+        { value: "1", label: "Très facile" },
+        { value: "2", label: "Facile" },
+        { value: "3", label: "Moyen" },
+        { value: "4", label: "Difficile" },
+        { value: "5", label: "Très difficile" }
+    ];
+    
+    difficulties.forEach(diff => {
+        const option = document.createElement('option');
+        option.value = diff.value;
+        option.textContent = diff.label;
+        filterDifficulty.appendChild(option);
+    });
+
+    // Remplir les temps
+    const timeRanges = [
+        { value: "15", label: "< 15 min" },
+        { value: "30", label: "< 30 min" },
+        { value: "60", label: "< 1h" },
+        { value: "61", label: "> 1h" }
+    ];
+    
+    timeRanges.forEach(time => {
+        const option = document.createElement('option');
+        option.value = time.value;
+        option.textContent = time.label;
+        filterTime.appendChild(option);
+    });
+
     // Écouteurs d'événements pour les filtres
     [filterCategory, filterDifficulty, filterTime].forEach(filter => {
         filter.addEventListener('change', applyFilters);
     });
-}
 
+    // Ajouter un écouteur pour le bouton de réinitialisation
+    const clearFiltersBtn = document.querySelector('.clear-filters');
+    if (clearFiltersBtn) {
+        clearFiltersBtn.addEventListener('click', () => {
+            filterCategory.value = '';
+            filterDifficulty.value = '';
+            filterTime.value = '';
+            displayRecipes(recipes);
+        });
+    }
+}
 function applyFilters() {
     const category = document.querySelector('.filter-category').value;
     const difficulty = document.querySelector('.filter-difficulty').value;
