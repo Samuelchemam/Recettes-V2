@@ -347,3 +347,13 @@ imageInput.addEventListener('change', function(e) {
         padding: 12px;
     }
 }
+// Détection de la disposition optimale
+function optimizeLayout() {
+    const container = document.querySelector('.recipes-grid');
+    const width = container.offsetWidth;
+    const optimalColumns = Math.floor(width / 300); // 300px min par carte
+    
+    container.style.gridTemplateColumns = `repeat(${optimalColumns}, 1fr)`;
+}
+
+window.addEventListener('resize', optimizeLayout);
