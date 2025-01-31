@@ -271,7 +271,10 @@ function animateDifficultyStars() {
 }
 
 // Chargement initial
-document.addEventListener('DOMContentLoaded', loadRecipes);
+document.addEventListener('DOMContentLoaded', () => {
+    loadRecipes();
+    initializeFilters(); // Ajoutez cette ligne
+});
 // Système de notifications
 function showNotification(message, type = 'success') {
     const notification = document.createElement('div');
@@ -393,7 +396,6 @@ function applyFilters() {
     // Afficher les recettes filtrées
     displayRecipes(filteredRecipes);
 }
-
 // Modifier votre fonction loadRecipes existante
 function loadRecipes() {
     showLoadingState(); // Ajout de l'état de chargement
