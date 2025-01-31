@@ -81,8 +81,24 @@ function displayRecipes(recipesToShow) {
                     <div class="card-actions">
                         <button class="edit-btn" onclick="editRecipe(${index}); event.stopPropagation()">✏️ Modifier</button>
                         <button class="delete-btn" onclick="deleteRecipe(${index}); event.stopPropagation()">🗑️ Supprimer</button>
-                    </div>
-                </div>
+                        <button class="comments-btn" onclick="toggleComments(${index}); event.stopPropagation()">💬 Commentaires</button>
+</div>
+<div class="comments-section hidden">
+    <div class="comments-list">
+        ${recipe.comments ? Object.values(recipe.comments).map(comment => `
+            <div class="comment">
+                <strong>${comment.author}</strong>
+                <p>${comment.text}</p>
+                <small>${comment.date}</small>
+            </div>
+        `).join('') : '<p>Aucun commentaire pour le moment</p>'}
+    </div>
+    <div class="add-comment-form">
+        <input type="text" class="comment-author" placeholder="Votre nom">
+        <textarea class="comment-text" placeholder="Votre commentaire"></textarea>
+        <button onclick="addComment(${index}); event.stopPropagation()">Ajouter un commentaire</button>
+    </div>
+</div>
             </div>
         `).join('');
         animateDifficultyStars();
@@ -387,4 +403,39 @@ function showNotification(message, type = 'success') {
     setTimeout(() => {
         notification.remove();
     }, 3000);
+}
+// Nouvelles fonctions à ajouter
+function toggleComments(index) {
+    const card = document.querySelectorAll('.recipe-card')[index];
+    const commentsSection = card.querySelector('.comments-section');
+    commentsSection.classList.toggle('hidden');
+}
+
+function addComment(index) {
+    const card = document.querySelectorAll('.recipe-card')[index];
+    const recipeId = recipes[index].id;
+    const author = card.querySelector('.comment-author').value;
+    const text = card.querySelector('.comment-text').value;
+
+    if (!author || !text) {
+        showNotification("Veuillez remplir tous les champs", "error");
+        return;
+    }
+
+    const comment = {
+        author: author,
+        text: text,
+        date: new Date().toLocaleDateString()
+    };
+
+    const commentsRef = database.ref(`recipes/${recipeId}/comments`);
+    commentsRef.push(comment)
+        .then(() => {
+            loadRecipes();
+            showNotification("Commentaire ajouté avec succès", "success");
+        })
+        .catch(error => {
+            console.error("Erreur lors de l'ajout du commentaire:", error);
+            showNotification("Erreur lors de l'ajout du commentaire", "error");
+        });
 }

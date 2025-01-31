@@ -252,4 +252,59 @@ input, textarea, select {
     0% { transform: scale(1); }
     50% { transform: scale(1.1); }
     100% { transform: scale(1); }
+}/* Styles pour les commentaires */
+.comments-section {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(var(--primary-color-rgb), 0.2);
+}
+
+.comments-section.hidden {
+    display: none;
+}
+
+.comments-list {
+    margin-bottom: 1rem;
+}
+
+.comment {
+    background: rgba(var(--primary-color-rgb), 0.1);
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.comment strong {
+    color: var(--primary-color);
+}
+
+.comment small {
+    display: block;
+    color: #666;
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+}
+
+.add-comment-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.comment-author {
+    padding: 0.5rem;
+    border: 1px solid rgba(var(--primary-color-rgb), 0.2);
+    border-radius: 0.25rem;
+}
+
+.comment-text {
+    padding: 0.5rem;
+    border: 1px solid rgba(var(--primary-color-rgb), 0.2);
+    border-radius: 0.25rem;
+    min-height: 60px;
+    resize: vertical;
+}
+
+.comments-btn {
+    background: var(--secondary-color);
 }
