@@ -390,16 +390,3 @@ input, textarea, select {
     display: flex;
     flex-direction: column;
 }
-
-.comments-section {
-    margin-top: 0;
-    border-top: none;
-    background: var(--bg-color);
-    position: relative;
-    z-index: 1;
-}
-
-.card-content {
-    position: relative;
-    z-index: 0;
-}
