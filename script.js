@@ -78,33 +78,41 @@ function displayRecipes(recipesToShow) {
                         <ol>${recipe.steps.map(s => `<li>${s}</li>`).join('')}</ol>
                     </div>
                     <div class="card-actions">
-                     <div class="primary-actions">
-                        <button class="edit-btn" onclick="editRecipe(${index}); event.stopPropagation()">✏️ Modifier</button>
-                        <button class="delete-btn" onclick="deleteRecipe(${index}); event.stopPropagation()">🗑️ Supprimer</button>
+    <div class="primary-actions">
+        <button class="edit-btn" onclick="editRecipe(${index}); event.stopPropagation()">✏️ Modifier</button>
+        <button class="delete-btn" onclick="deleteRecipe(${index}); event.stopPropagation()">🗑️ Supprimer</button>
+    </div>
+    <div class="secondary-actions">
+        <button class="comments-btn" onclick="toggleComments(${index}); event.stopPropagation()">💬 Commentaires</button>
+    </div>
+</div>
+<div class="comments-section hidden" data-recipe-id="${recipe.id}" onclick="event.stopPropagation()">
+    <div class="comments-list">
+        ${recipe.comments ? 
+            Object.entries(recipe.comments).map(([commentId, comment]) => `
+                <div class="comment">
+                    <div class="comment-content">
+                        <strong>${comment.author}</strong>
+                        <p>${comment.text}</p>
+                        <small>${comment.date}</small>
                     </div>
-                    <div class="secondary-actions">
-                    <button class="comments-btn" onclick="toggleComments(${index}); event.stopPropagation()">💬 Commentaires</button>
+                    <div class="comment-actions">
+                        <button class="edit-comment-btn" onclick="editComment('${recipe.id}', '${commentId}', this); event.stopPropagation()">✏️</button>
+                        <button class="delete-comment-btn" onclick="deleteComment('${recipe.id}', '${commentId}'); event.stopPropagation()">🗑️</button>
                     </div>
-                    <div class="comments-section hidden" data-recipe-id="${recipe.id}" onclick="event.stopPropagation()">
-                        <div class="comments-list">
-                            ${recipe.comments ? 
-                                Object.entries(recipe.comments).map(([key, comment]) => `
-                                    <div class="comment">
-                                        <strong>${comment.author}</strong>
-                                        <p>${comment.text}</p>
-                                        <small>${comment.date}</small>
-                                    </div>
-                                `).join('') 
-                                : '<p>Aucun commentaire pour le moment</p>'
-                            }
-                        </div>
-                        <<div class="add-comment-form">
-                        <input type="text" class="comment-author" placeholder="Votre nom" onclick="event.stopPropagation()">
-                        <textarea class="comment-text" placeholder="Votre commentaire" onclick="event.stopPropagation()"></textarea>
-                        <button class="submit-comment" onclick="addComment('${recipe.id}', this); event.stopPropagation()">
-                        Ajouter un commentaire
-                        </button>
-                        </div>
+                </div>
+            `).join('') 
+            : '<p>Aucun commentaire pour le moment</p>'
+        }
+    </div>
+    <div class="add-comment-form">
+        <input type="text" class="comment-author" placeholder="Votre nom" onclick="event.stopPropagation()">
+        <textarea class="comment-text" placeholder="Votre commentaire" onclick="event.stopPropagation()"></textarea>
+        <button class="submit-comment" onclick="addComment('${recipe.id}', this); event.stopPropagation()">
+            Ajouter un commentaire
+        </button>
+    </div>
+</div>
         `).join('');
         animateDifficultyStars();
     } catch (e) {
