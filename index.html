@@ -28,83 +28,75 @@
                 <button class="filter-toggle">Filtres 🔍</button>
             </div>
             
-            <!-- Filtres cachés par défaut -->
             <div class="filters-section hidden">
                 <div class="filters-grid">
                     <select class="filter-category">
-                        <option value="">Catégories</option>
+                        <option value="">Toutes les catégories</option>
                     </select>
                     <select class="filter-difficulty">
-                        <option value="">Difficulté</option>
+                        <option value="">Toutes les difficultés</option>
                     </select>
                     <select class="filter-time">
-                        <option value="">Temps</option>
+                        <option value="">Tous les temps</option>
                     </select>
                     <button class="clear-filters">Réinitialiser</button>
                 </div>
             </div>
-        </div>
-    
-        <!-- Modal pour le formulaire -->
-        <div id="recipe-modal" class="modal hidden">
-            <div class="modal-content">
-                <button class="close-modal">×</button>
-                <form class="recipe-form" id="recipe-form">
-                    <!-- Déplacer ici tout le contenu de votre formulaire existant -->
-                </form>
+            <div id="recipe-modal" class="modal hidden">
+                <div class="modal-content">
+                    <button class="close-modal">×</button>
+                    <form class="recipe-form" id="recipe-form">
+                        <h2>Ajouter une recette</h2>
+                        <div class="form-group">
+                            <label for="title">Titre</label>
+                            <input type="text" id="title" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="author">Auteur</label>
+                            <input type="text" id="author" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="difficulty">Difficulté</label>
+                            <select id="difficulty" required>
+                                <option value="1">1 - Très facile</option>
+                                <option value="2">2 - Facile</option>
+                                <option value="3">3 - Moyen</option>
+                                <option value="4">4 - Difficile</option>
+                                <option value="5">5 - Très difficile</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="ingredients">Ingrédients (un par ligne)</label>
+                            <textarea id="ingredients" rows="4" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="steps">Étapes (une par ligne)</label>
+                            <textarea id="steps" rows="4" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="categories">Catégories</label>
+                            <select id="categories" multiple>
+                                <option value="Entrée">Entrée</option>
+                                <option value="Plat principal">Plat principal</option>
+                                <option value="Dessert">Dessert</option>
+                                <option value="Boisson">Boisson</option>
+                                <option value="Végétarien">Végétarien</option>
+                                <option value="Vegan">Vegan</option>
+                                <option value="Sans gluten">Sans gluten</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="prepTime">Temps de préparation (minutes)</label>
+                            <input type="number" id="prepTime" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cookTime">Temps de cuisson (minutes)</label>
+                            <input type="number" id="cookTime" min="0" required>
+                        </div>
+                        <button type="submit">Ajouter la recette</button>
+                    </form>
+                </div>
             </div>
-        </div>
-        <form class="recipe-form" id="recipe-form">
-            <h2>Ajouter une recette</h2>
-            <div class="form-group">
-                <label for="title">Titre</label>
-                <input type="text" id="title" required>
-            </div>
-            <div class="form-group">
-                <label for="author">Auteur</label>
-                <input type="text" id="author" required>
-            </div>
-            <div class="form-group">
-                <label for="difficulty">Difficulté</label>
-                <select id="difficulty" required>
-                    <option value="1">1 - Très facile</option>
-                    <option value="2">2 - Facile</option>
-                    <option value="3">3 - Moyen</option>
-                    <option value="4">4 - Difficile</option>
-                    <option value="5">5 - Très difficile</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="ingredients">Ingrédients (un par ligne)</label>
-                <textarea id="ingredients" rows="4" required></textarea>
-            </div>
-            <div class="form-group">
-                <label for="steps">Étapes (une par ligne)</label>
-                <textarea id="steps" rows="4" required></textarea>
-            </div>
-            <div class="form-group">
-                <label for="categories">Catégories</label>
-                <select id="categories" multiple>
-                    <option value="Entrée">Entrée</option>
-                    <option value="Plat principal">Plat principal</option>
-                    <option value="Dessert">Dessert</option>
-                    <option value="Boisson">Boisson</option>
-                    <option value="Végétarien">Végétarien</option>
-                    <option value="Vegan">Vegan</option>
-                    <option value="Sans gluten">Sans gluten</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="prepTime">Temps de préparation (minutes)</label>
-                <input type="number" id="prepTime" min="0" required>
-            </div>
-            <div class="form-group">
-                <label for="cookTime">Temps de cuisson (minutes)</label>
-                <input type="number" id="cookTime" min="0" required>
-            </div>
-            <button type="submit">Ajouter la recette</button>
-        </form>
-
         <div class="recipes-grid" id="recipes-container"></div>
     </div>
     <script src="script.js"></script>
