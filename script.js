@@ -82,10 +82,10 @@ function displayRecipes(recipesToShow) {
                     <!-- Nouvelle section header-top -->
                   <div class="card-header-top">
     <h3>${recipe.title}</h3>
-   <button class="favorite-btn ${recipe.favorite ? 'active' : ''}" onclick="toggleFavorite('${recipe.id}'); event.stopPropagation()">
-    ${recipe.favorite ? '❤️' : '🤍'}
-</button>
-
+    <button class="favorite-btn" onclick="toggleFavorite('${recipe.id}', ${index}); event.stopPropagation()">
+        ${recipe.favorite ? '❤️' : '🤍'}
+    </button>
+</div>
                     <!-- Conservation de la difficulté existante -->
                     <div class="difficulty">
                         ${'★'.repeat(recipe.difficulty)}${'☆'.repeat(5 - recipe.difficulty)}
