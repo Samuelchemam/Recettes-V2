@@ -252,11 +252,15 @@ input, textarea, select {
     0% { transform: scale(1); }
     50% { transform: scale(1.1); }
     100% { transform: scale(1); }
-}/* Styles pour les commentaires */
+}
+/* Styles optimisés pour les commentaires */
 .comments-section {
     margin-top: 1rem;
-    padding-top: 1rem;
-    border-top: 1px solid rgba(var(--primary-color-rgb), 0.2);
+    padding: 1rem;
+    background: var(--bg-color);
+    border-radius: 0.5rem;
+    border: 1px solid rgba(var(--primary-color-rgb), 0.2);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
 .comments-section.hidden {
@@ -265,13 +269,22 @@ input, textarea, select {
 
 .comments-list {
     margin-bottom: 1rem;
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
 }
 
 .comment {
     background: rgba(var(--primary-color-rgb), 0.1);
-    padding: 0.75rem;
+    padding: 1rem;
     border-radius: 0.5rem;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.8rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+}
+
+.comment:hover {
+    transform: translateX(5px);
 }
 
 .comment strong {
@@ -280,7 +293,8 @@ input, textarea, select {
 
 .comment small {
     display: block;
-    color: #666;
+    color: var(--text-color);
+    opacity: 0.7;
     font-size: 0.8rem;
     margin-top: 0.5rem;
 }
@@ -288,23 +302,47 @@ input, textarea, select {
 .add-comment-form {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--card-bg);
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
-.comment-author {
-    padding: 0.5rem;
-    border: 1px solid rgba(var(--primary-color-rgb), 0.2);
-    border-radius: 0.25rem;
-}
-
+.comment-author,
 .comment-text {
-    padding: 0.5rem;
-    border: 1px solid rgba(var(--primary-color-rgb), 0.2);
-    border-radius: 0.25rem;
-    min-height: 60px;
-    resize: vertical;
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid rgba(var(--primary-color-rgb), 0.3);
+    border-radius: 0.5rem;
+    background: var(--bg-color);
+    transition: border-color 0.2s ease;
+}
+
+.comment-author:focus,
+.comment-text:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.2);
+}
+
+.submit-comment {
+    background: var(--primary-color);
+    color: white;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+}
+
+.submit-comment:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
 .comments-btn {
     background: var(--secondary-color);
+    color: white;
+    margin-left: 0.5rem;
 }

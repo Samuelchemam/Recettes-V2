@@ -43,7 +43,6 @@ function loadRecipes() {
         showNotification("Erreur lors du chargement des recettes", "error");
     });
 }
-
 function displayRecipes(recipesToShow) {
     try {
         recipesContainer.innerHTML = recipesToShow.map((recipe, index) => `
@@ -82,23 +81,29 @@ function displayRecipes(recipesToShow) {
                         <button class="edit-btn" onclick="editRecipe(${index}); event.stopPropagation()">✏️ Modifier</button>
                         <button class="delete-btn" onclick="deleteRecipe(${index}); event.stopPropagation()">🗑️ Supprimer</button>
                         <button class="comments-btn" onclick="toggleComments(${index}); event.stopPropagation()">💬 Commentaires</button>
-</div>
-<div class="comments-section hidden">
-    <div class="comments-list">
-        ${recipe.comments ? Object.values(recipe.comments).map(comment => `
-            <div class="comment">
-                <strong>${comment.author}</strong>
-                <p>${comment.text}</p>
-                <small>${comment.date}</small>
-            </div>
-        `).join('') : '<p>Aucun commentaire pour le moment</p>'}
-    </div>
-    <div class="add-comment-form">
-        <input type="text" class="comment-author" placeholder="Votre nom">
-        <textarea class="comment-text" placeholder="Votre commentaire"></textarea>
-        <button onclick="addComment(${index}); event.stopPropagation()">Ajouter un commentaire</button>
-    </div>
-</div>
+                    </div>
+                    <div class="comments-section hidden" data-recipe-id="${recipe.id}">
+                        <div class="comments-list">
+                            ${recipe.comments ? 
+                                Object.entries(recipe.comments).map(([key, comment]) => `
+                                    <div class="comment">
+                                        <strong>${comment.author}</strong>
+                                        <p>${comment.text}</p>
+                                        <small>${comment.date}</small>
+                                    </div>
+                                `).join('') 
+                                : '<p>Aucun commentaire pour le moment</p>'
+                            }
+                        </div>
+                        <div class="add-comment-form">
+                            <input type="text" class="comment-author" placeholder="Votre nom">
+                            <textarea class="comment-text" placeholder="Votre commentaire"></textarea>
+                            <button class="submit-comment" onclick="addComment('${recipe.id}', this); event.stopPropagation()">
+                                Ajouter un commentaire
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         `).join('');
         animateDifficultyStars();
@@ -107,12 +112,50 @@ function displayRecipes(recipesToShow) {
         showNotification("Erreur d'affichage", "error");
     }
 }
+function toggleComments(index) {
+    const commentsSection = document.querySelectorAll('.comments-section')[index];
+    if (commentsSection) {
+        commentsSection.classList.toggle('hidden');
+    }
+}
 
+function addComment(recipeId, buttonElement) {
+    const commentSection = buttonElement.closest('.comments-section');
+    const authorInput = commentSection.querySelector('.comment-author');
+    const textInput = commentSection.querySelector('.comment-text');
+    
+    const author = authorInput.value.trim();
+    const text = textInput.value.trim();
+
+    if (!author || !text) {
+        showNotification("Veuillez remplir tous les champs", "error");
+        return;
+    }
+
+    const comment = {
+        author: author,
+        text: text,
+        date: new Date().toLocaleDateString()
+    };
+
+    const commentsRef = database.ref(`recipes/${recipeId}/comments`);
+    
+    commentsRef.push(comment)
+        .then(() => {
+            authorInput.value = '';
+            textInput.value = '';
+            loadRecipes();
+            showNotification("Commentaire ajouté avec succès", "success");
+        })
+        .catch(error => {
+            console.error("Erreur lors de l'ajout du commentaire:", error);
+            showNotification("Erreur lors de l'ajout du commentaire", "error");
+        });
+}
 // Autres fonctions existantes...
 function toggleTheme() {
     document.body.classList.toggle('dark-mode');
 }
-
 // Formulaire d'ajout de recette
 recipeForm.addEventListener('submit', function(event) {
     event.preventDefault();
@@ -403,39 +446,4 @@ function showNotification(message, type = 'success') {
     setTimeout(() => {
         notification.remove();
     }, 3000);
-}
-// Nouvelles fonctions à ajouter
-function toggleComments(index) {
-    const card = document.querySelectorAll('.recipe-card')[index];
-    const commentsSection = card.querySelector('.comments-section');
-    commentsSection.classList.toggle('hidden');
-}
-
-function addComment(index) {
-    const card = document.querySelectorAll('.recipe-card')[index];
-    const recipeId = recipes[index].id;
-    const author = card.querySelector('.comment-author').value;
-    const text = card.querySelector('.comment-text').value;
-
-    if (!author || !text) {
-        showNotification("Veuillez remplir tous les champs", "error");
-        return;
-    }
-
-    const comment = {
-        author: author,
-        text: text,
-        date: new Date().toLocaleDateString()
-    };
-
-    const commentsRef = database.ref(`recipes/${recipeId}/comments`);
-    commentsRef.push(comment)
-        .then(() => {
-            loadRecipes();
-            showNotification("Commentaire ajouté avec succès", "success");
-        })
-        .catch(error => {
-            console.error("Erreur lors de l'ajout du commentaire:", error);
-            showNotification("Erreur lors de l'ajout du commentaire", "error");
-        });
 }
