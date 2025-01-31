@@ -1,5 +1,6 @@
-// script.js
-// Initialisation de Firebase avec ta config
+// AVANT - script.js original avant l'ajout des favoris
+
+// Initialisation de Firebase
 const app = firebase.initializeApp({
     apiKey: "AIzaSyAm_iCfNAKBb4KE_UhCDFq25ZA0Q0-MNfA",
     authDomain: "site-web-recettes.firebaseapp.com",
@@ -9,98 +10,40 @@ const app = firebase.initializeApp({
     messagingSenderId: "616026617837",
     appId: "1:616026617837:web:8de2604f97a5633094d9e4",
     measurementId: "G-9R9TMNM9JY"
-  });
-  // À ajouter après l'initialisation
+});
+
 if (firebase.apps.length) {
     console.log("Firebase est correctement initialisé");
 } else {
     console.error("Erreur d'initialisation de Firebase");
-} 
-  const database = firebase.database();
+}
+
+const database = firebase.database();
 let recipes = [];
 const recipesContainer = document.getElementById('recipes-container');
 const recipeForm = document.getElementById('recipe-form');
 
-//Charger les recettes depuis localStorage
+const CATEGORIES = [
+    'Entrée', 'Plat principal', 'Dessert', 'Boisson', 
+    'Végétarien', 'Vegan', 'Sans gluten'
+];
+
 function loadRecipes() {
+    showLoadingState();
     database.ref('recipes').once('value', (snapshot) => {
         recipes = [];
         snapshot.forEach((childSnapshot) => {
             const recipe = { id: childSnapshot.key, ...childSnapshot.val() };
             recipes.push(recipe);
         });
-        displayRecipes(recipes);  // Affiche les recettes
+        displayRecipes(recipes);
+        initializeFilters();
     }, (error) => {
         console.error("Erreur lors du chargement des recettes :", error);
-    });//
-    
-}
-        function toggleFavoritesView() {
-            const recipesGrid = document.querySelector('.recipes-grid');
-        recipesGrid.parentNode.insertBefore(returnBtn, recipesGrid);
-            // Si aucun favori, afficher un message
-            if (favoriteRecipes.length === 0) {
-                showNotification("Aucune recette en favoris", "info");
-                return;
-            }
-            
-            // Afficher uniquement les recettes favorites
-            displayRecipes(favoriteRecipes);
-            showNotification("Affichage des favoris", "success");
-            // Ajouter une option pour revenir à toutes les recettes
-            const returnBtn = document.createElement('button');
-            returnBtn.className = 'return-btn';
-            returnBtn.innerHTML = '← Retour à toutes les recettes';
-            returnBtn.onclick = () => {
-                returnBtn.remove();
-                displayRecipes(recipes);
-            };
-            
-            // Insérer le bouton de retour avant la grille de recettes
-            recipesGrid.parentNode.insertBefore(returnBtn, recipesGrid);
-            
-            showNotification("Affichage des favoris", "success");
-        }
-// Au début de script.js, après la déclaration des variables existantes
-const CATEGORIES = [
-    'Entrée', 'Plat principal', 'Dessert', 'Boisson', 
-    'Végétarien', 'Vegan', 'Sans gluten'
-];
-
-// Basculer le thème sombre/clair
-function toggleTheme() {
-    document.body.classList.toggle('dark-mode');
-}
-
-// Ajouter une nouvelle recette
-// Dans script.js, modifiez la partie du addEventListener du form
-recipeForm.addEventListener('submit', function(event) {
-    event.preventDefault();
-
-    const recipe = {
-        title: document.getElementById('title').value,
-        author: document.getElementById('author').value,
-        difficulty: parseInt(document.getElementById('difficulty').value),
-        ingredients: document.getElementById('ingredients').value.split('\n').filter(i => i.trim()),
-        steps: document.getElementById('steps').value.split('\n').filter(s => s.trim()),
-        date: new Date().toLocaleDateString(),
-        categories: Array.from(document.getElementById('categories').selectedOptions).map(option => option.value),
-        prepTime: parseInt(document.getElementById('prepTime').value) || 0,
-        cookTime: parseInt(document.getElementById('cookTime').value) || 0,
-        favorite: false
-    };
-
-    // Ajouter la recette à Realtime Database
-    database.ref('recipes').push(recipe, (error) => {
-        if (error) {
-            console.error("Erreur lors de l'ajout de la recette :", error);
-        } else {
-            loadRecipes();  // Recharge les recettes après l’ajout
-            recipeForm.reset();  // Réinitialise le formulaire
-        }
+        showNotification("Erreur lors du chargement des recettes", "error");
     });
-});
-// Afficher les recettes
+}
+
 function displayRecipes(recipesToShow) {
     try {
         recipesContainer.innerHTML = recipesToShow.map((recipe, index) => `
@@ -108,9 +51,6 @@ function displayRecipes(recipesToShow) {
                 <div class="card-header">
                     <div class="card-header-top">
                         <h3>${recipe.title}</h3>
-                        <button class="favorite-btn" onclick="toggleFavorite('${recipe.id}', ${index}); event.stopPropagation()">
-                            ${recipe.favorite ? '❤️' : '🤍'}
-                        </button>
                     </div>
                     <div class="difficulty">
                         ${'★'.repeat(recipe.difficulty)}${'☆'.repeat(5 - recipe.difficulty)}
@@ -151,53 +91,67 @@ function displayRecipes(recipesToShow) {
         showNotification("Erreur d'affichage", "error");
     }
 }
-function toggleFavorite(recipeId, index) {
-    console.log("Toggle favorite pour recette:", recipeId, "à l'index:", index); // Debug
 
-    // Trouver la recette dans le tableau
-    const recipe = recipes[index];
-    if (!recipe) {
-        console.error("Recette non trouvée");
-        return;
-    }
-
-    // Inverser l'état du favori
-    const newFavoriteState = !recipe.favorite;
-    
-    // Référence Firebase
-    const recipeRef = database.ref(`recipes/${recipeId}`);
-    
-    // Mise à jour dans Firebase
-    recipeRef.update({
-        favorite: newFavoriteState
-    }).then(() => {
-        // Mise à jour locale
-        recipe.favorite = newFavoriteState;
-        
-        // Mise à jour visuelle
-        const favoriteBtn = document.querySelectorAll('.favorite-btn')[index];
-        if (favoriteBtn) {
-            favoriteBtn.innerHTML = newFavoriteState ? '❤️' : '🤍';
-            favoriteBtn.classList.toggle('active');
-            
-            // Animation
-            favoriteBtn.classList.add('favorite-animation');
-            setTimeout(() => {
-                favoriteBtn.classList.remove('favorite-animation');
-            }, 500);
-            
-            // Notification
-            showNotification(
-                newFavoriteState ? 'Ajouté aux favoris' : 'Retiré des favoris',
-                'success'
-            );
-        }
-    }).catch(error => {
-        console.error("Erreur lors de la mise à jour du favori:", error);
-        showNotification("Erreur lors de la mise à jour du favori", "error");
-    });
+// Autres fonctions existantes...
+function toggleTheme() {
+    document.body.classList.toggle('dark-mode');
 }
-// Basculer l'expansion des cartes
+
+// Formulaire d'ajout de recette
+recipeForm.addEventListener('submit', function(event) {
+    event.preventDefault();
+    const recipe = {
+        title: document.getElementById('title').value,
+        author: document.getElementById('author').value,
+        difficulty: parseInt(document.getElementById('difficulty').value),
+        ingredients: document.getElementById('ingredients').value.split('\n').filter(i => i.trim()),
+        steps: document.getElementById('steps').value.split('\n').filter(s => s.trim()),
+        date: new Date().toLocaleDateString(),
+        categories: Array.from(document.getElementById('categories').selectedOptions).map(option => option.value),
+        prepTime: parseInt(document.getElementById('prepTime').value) || 0,
+        cookTime: parseInt(document.getElementById('cookTime').value) || 0
+    };
+
+    database.ref('recipes').push(recipe, (error) => {
+        if (error) {
+            console.error("Erreur lors de l'ajout de la recette :", error);
+        } else {
+            loadRecipes();
+            recipeForm.reset();
+            document.getElementById('recipe-modal').classList.add('hidden');
+        }
+    });
+});
+
+// Initialisation
+document.addEventListener('DOMContentLoaded', () => {
+    loadRecipes();
+    initializeFilters();
+    
+    const addRecipeBtn = document.getElementById('add-recipe-btn');
+    const modal = document.getElementById('recipe-modal');
+    const closeModal = document.querySelector('.close-modal');
+    const filterToggle = document.querySelector('.filter-toggle');
+    const filtersSection = document.querySelector('.filters-section');
+
+    addRecipeBtn.addEventListener('click', () => {
+        modal.classList.remove('hidden');
+    });
+
+    closeModal.addEventListener('click', () => {
+        modal.classList.add('hidden');
+    });
+
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.classList.add('hidden');
+        }
+    });
+
+    filterToggle.addEventListener('click', () => {
+        filtersSection.classList.toggle('hidden');
+    });
+});// Fonctions de gestion des recettes
 function toggleExpand(index) {
     const card = document.querySelectorAll('.recipe-card')[index];
     const isExpanded = card.getAttribute('data-expanded') === 'true';
@@ -205,20 +159,19 @@ function toggleExpand(index) {
     card.setAttribute('data-expanded', !isExpanded);
     card.classList.toggle('expanded');
 }
-// Supprimer une recette
+
 function deleteRecipe(index) {
     const recipeId = recipes[index].id;
     
     if (confirm("Supprimer cette recette ?")) {
         database.ref('recipes/' + recipeId).remove().then(() => {
-            loadRecipes();  // Recharge les recettes après la suppression
+            loadRecipes();
         }).catch((error) => {
             console.error("Erreur lors de la suppression de la recette :", error);
         });
     }
 }
-// Modifier une recette
-// Modifier une recette
+
 function editRecipe(index) {
     const recipe = recipes[index];
     const card = document.querySelectorAll('.recipe-card')[index];
@@ -280,7 +233,7 @@ function editRecipe(index) {
     
     card.querySelector('.card-content').innerHTML = editForm;
 }
-// Sauvegarder les modifications
+
 function saveEdit(index) {
     const card = document.querySelectorAll('.recipe-card')[index];
     const recipeId = recipes[index].id;
@@ -297,14 +250,14 @@ function saveEdit(index) {
         date: new Date().toLocaleDateString()
     };
 
-    // Met à jour la recette dans Firebase
     database.ref('recipes/' + recipeId).update(updatedRecipe).then(() => {
-        loadRecipes();  // Recharge les recettes après la mise à jour
+        loadRecipes();
     }).catch((error) => {
         console.error("Erreur lors de la mise à jour de la recette :", error);
     });
 }
-// Rechercher des recettes
+
+// Fonctions de recherche et filtres
 function searchRecipes() {
     const searchTerm = document.querySelector('.search-bar').value.toLowerCase();
     const filteredRecipes = recipes.filter(recipe => 
@@ -314,57 +267,15 @@ function searchRecipes() {
     displayRecipes(filteredRecipes);
 }
 
-// Animation des étoiles
-function animateDifficultyStars() {
-    document.querySelectorAll('.difficulty').forEach(star => {
-        star.addEventListener('mouseover', () => {
-            star.style.animation = 'sparkle 0.6s ease-out';
-        });
-        star.addEventListener('animationend', () => {
-            star.style.animation = '';
-        });
-    });
-}
-
-// Chargement initial
-document.addEventListener('DOMContentLoaded', () => {
-    loadRecipes();
-    initializeFilters(); // Ajoutez cette ligne
-});
-// Système de notifications
-function showNotification(message, type = 'success') {
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    notification.textContent = message;
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-        notification.remove();
-    }, 3000);
-}
-
-// Système de pagination
-let currentPage = 1;
-const recipesPerPage = 6;
-
-function paginateRecipes(recipesArray) {
-    const start = (currentPage - 1) * recipesPerPage;
-    const end = start + recipesPerPage;
-    return recipesArray.slice(start, end);
-}
-
-// Gestion des filtres
 function initializeFilters() {
     const filterCategory = document.querySelector('.filter-category');
     const filterDifficulty = document.querySelector('.filter-difficulty');
     const filterTime = document.querySelector('.filter-time');
     
-    // Vider d'abord les options existantes
     filterCategory.innerHTML = '<option value="">Toutes les catégories</option>';
     filterDifficulty.innerHTML = '<option value="">Toutes les difficultés</option>';
     filterTime.innerHTML = '<option value="">Tous les temps</option>';
 
-    // Remplir les catégories
     CATEGORIES.forEach(category => {
         const option = document.createElement('option');
         option.value = category;
@@ -372,7 +283,6 @@ function initializeFilters() {
         filterCategory.appendChild(option);
     });
 
-    // Remplir les difficultés
     const difficulties = [
         { value: "1", label: "Très facile" },
         { value: "2", label: "Facile" },
@@ -388,7 +298,6 @@ function initializeFilters() {
         filterDifficulty.appendChild(option);
     });
 
-    // Remplir les temps
     const timeRanges = [
         { value: "15", label: "< 15 min" },
         { value: "30", label: "< 30 min" },
@@ -403,12 +312,10 @@ function initializeFilters() {
         filterTime.appendChild(option);
     });
 
-    // Écouteurs d'événements pour les filtres
     [filterCategory, filterDifficulty, filterTime].forEach(filter => {
         filter.addEventListener('change', applyFilters);
     });
 
-    // Ajouter un écouteur pour le bouton de réinitialisation
     const clearFiltersBtn = document.querySelector('.clear-filters');
     if (clearFiltersBtn) {
         clearFiltersBtn.addEventListener('click', () => {
@@ -419,6 +326,7 @@ function initializeFilters() {
         });
     }
 }
+
 function applyFilters() {
     const category = document.querySelector('.filter-category').value;
     const difficulty = document.querySelector('.filter-difficulty').value;
@@ -426,19 +334,16 @@ function applyFilters() {
 
     let filteredRecipes = [...recipes];
 
-    // Filtre par catégorie
     if (category) {
         filteredRecipes = filteredRecipes.filter(recipe => 
             recipe.categories && recipe.categories.includes(category));
     }
 
-    // Filtre par difficulté
     if (difficulty) {
         filteredRecipes = filteredRecipes.filter(recipe => 
             recipe.difficulty === parseInt(difficulty));
     }
 
-    // Filtre par temps total
     if (time) {
         filteredRecipes = filteredRecipes.filter(recipe => {
             const totalTime = recipe.prepTime + recipe.cookTime;
@@ -449,64 +354,21 @@ function applyFilters() {
         });
     }
 
-    // Afficher les recettes filtrées
     displayRecipes(filteredRecipes);
 }
-// Modifier votre fonction loadRecipes existante
-function loadRecipes() {
-    showLoadingState();
-    database.ref('recipes').once('value', (snapshot) => {
-        recipes = [];
-        snapshot.forEach((childSnapshot) => {
-            const recipe = { id: childSnapshot.key, ...childSnapshot.val() };
-            recipes.push(recipe);
+
+// Animations et UI
+function animateDifficultyStars() {
+    document.querySelectorAll('.difficulty').forEach(star => {
+        star.addEventListener('mouseover', () => {
+            star.style.animation = 'sparkle 0.6s ease-out';
         });
-        displayRecipes(recipes);
-        initializeFilters();
-    }, (error) => {
-        console.error("Erreur lors du chargement des recettes :", error);
-        showNotification("Erreur lors du chargement des recettes", "error");
+        star.addEventListener('animationend', () => {
+            star.style.animation = '';
+        });
     });
-} // Ajout de l'état de chargement
-    // Ajoutez cette nouvelle fonction après showLoadingState
-        // Filtrer les recettes favorites
-        const favoriteRecipes = recipes.filter(recipe => recipe.favorite);
-        
-        // Vérifier s'il y a des favoris
-        if (favoriteRecipes.length === 0) {
-            showNotification("Aucune recette en favoris", "info");
-        }
-        
-        // Créer le bouton retour s'il n'existe pas déjà
-        if (!document.querySelector('.return-btn')) {
-            const returnBtn = document.createElement('button');
-            returnBtn.className = 'return-btn';
-            returnBtn.innerHTML = '← Retour à toutes les recettes';
-            returnBtn.onclick = () => {
-                returnBtn.remove();
-                displayRecipes(recipes);
-            };
-            displayRecipes(favoriteRecipes);
-    showNotification("Affichage des favoris", "success");
 }
-        // Ajoutez cette ligne pour mettre à jour la section favoris
-        const favoritesContainer = document.getElementById('favorites-container');
-        if (!favoritesContainer.classList.contains('hidden')) {
-            toggleFavoritesView();
-        }
-    database.ref('recipes').once('value', (snapshot) => {
-        recipes = [];
-        snapshot.forEach((childSnapshot) => {
-            const recipe = { id: childSnapshot.key, ...childSnapshot.val() };
-            recipes.push(recipe);
-        });
-        displayRecipes(paginateRecipes(recipes)); // Utilisation de la pagination
-        initializeFilters(); // Initialisation des filtres
-    }, (error) => {
-        console.error("Erreur lors du chargement des recettes :", error);
-        showNotification("Erreur lors du chargement des recettes", "error");
-    });
-// État de chargement
+
 function showLoadingState() {
     recipesContainer.innerHTML = Array(6).fill(`
         <div class="recipe-card loading-skeleton">
@@ -515,32 +377,14 @@ function showLoadingState() {
         </div>
     `).join('');
 }
-// Gestionnaire du modal et des filtres
-document.addEventListener('DOMContentLoaded', () => {
-    const addRecipeBtn = document.getElementById('add-recipe-btn');
-    const modal = document.getElementById('recipe-modal');
-    const closeModal = document.querySelector('.close-modal');
-    const filterToggle = document.querySelector('.filter-toggle');
-    const filtersSection = document.querySelector('.filters-section');
 
-    // Gestion du modal
-    addRecipeBtn.addEventListener('click', () => {
-        modal.classList.remove('hidden');
-    });
-
-    closeModal.addEventListener('click', () => {
-        modal.classList.add('hidden');
-    });
-
-    // Fermeture du modal en cliquant à l'extérieur
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            modal.classList.add('hidden');
-        }
-    });
-
-    // Toggle des filtres
-    filterToggle.addEventListener('click', () => {
-        filtersSection.classList.toggle('hidden');
-    });
-});
+function showNotification(message, type = 'success') {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
