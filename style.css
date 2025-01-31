@@ -297,28 +297,3 @@ select[multiple] {
     border-radius: 1rem;
     font-size: 0.875rem;
 }
-/* Animations subtiles pour le feedback */
-.recipe-card {
-    transition: transform 0.2s ease;
-}
-
-.recipe-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-.save-button {
-    position: relative;
-    overflow: hidden;
-}
-
-.save-button.saving::after {
-    content: '';
-    position: absolute;
-    width: 100%;
-    height: 2px;
-    bottom: 0;
-    left: 0;
-    background: var(--primary-color);
-    animation: loading 1s infinite linear;
-}
