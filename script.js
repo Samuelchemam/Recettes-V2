@@ -475,7 +475,6 @@ function loadRecipes() {
         // Vérifier s'il y a des favoris
         if (favoriteRecipes.length === 0) {
             showNotification("Aucune recette en favoris", "info");
-            return;
         }
         
         // Créer le bouton retour s'il n'existe pas déjà
