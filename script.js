@@ -377,3 +377,32 @@ function showLoadingState() {
         </div>
     `).join('');
 }
+// Gestionnaire du modal et des filtres
+document.addEventListener('DOMContentLoaded', () => {
+    const addRecipeBtn = document.getElementById('add-recipe-btn');
+    const modal = document.getElementById('recipe-modal');
+    const closeModal = document.querySelector('.close-modal');
+    const filterToggle = document.querySelector('.filter-toggle');
+    const filtersSection = document.querySelector('.filters-section');
+
+    // Gestion du modal
+    addRecipeBtn.addEventListener('click', () => {
+        modal.classList.remove('hidden');
+    });
+
+    closeModal.addEventListener('click', () => {
+        modal.classList.add('hidden');
+    });
+
+    // Fermeture du modal en cliquant à l'extérieur
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.classList.add('hidden');
+        }
+    });
+
+    // Toggle des filtres
+    filterToggle.addEventListener('click', () => {
+        filtersSection.classList.toggle('hidden');
+    });
+});

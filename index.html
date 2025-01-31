@@ -11,15 +11,49 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-        <div class="container">
-            <nav class="main-nav">
-                <div class="logo">📖 Recettes Collaboratives</div>
-                <div class="nav-links">
-                    <a href="#recipes">Recettes</a>
-                    <a href="#add-recipe">Ajouter</a>
-                    <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+    <div class="container">
+        <nav class="main-nav">
+            <div class="logo">📖 Recettes Collaboratives</div>
+            <div class="nav-links">
+                <a href="#recipes">Recettes</a>
+                <button id="add-recipe-btn" class="primary-btn">+ Nouvelle Recette</button>
+                <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+            </div>
+        </nav>
+    
+        <!-- Section de recherche compacte -->
+        <div class="search-controls">
+            <div class="search-wrapper">
+                <input type="text" class="search-bar" placeholder="Rechercher une recette..." oninput="searchRecipes()">
+                <button class="filter-toggle">Filtres 🔍</button>
+            </div>
+            
+            <!-- Filtres cachés par défaut -->
+            <div class="filters-section hidden">
+                <div class="filters-grid">
+                    <select class="filter-category">
+                        <option value="">Catégories</option>
+                    </select>
+                    <select class="filter-difficulty">
+                        <option value="">Difficulté</option>
+                    </select>
+                    <select class="filter-time">
+                        <option value="">Temps</option>
+                    </select>
+                    <button class="clear-filters">Réinitialiser</button>
                 </div>
-            </nav>
+            </div>
+        </div>
+    
+        <!-- Modal pour le formulaire -->
+        <div id="recipe-modal" class="modal hidden">
+            <div class="modal-content">
+                <button class="close-modal">×</button>
+                <form class="recipe-form" id="recipe-form">
+                    <!-- Déplacer ici tout le contenu de votre formulaire existant -->
+                </form>
+            </div>
+        </div>
             <input type="text" class="search-bar" placeholder="Rechercher une recette par titre ou ingrédient..." oninput="searchRecipes()">
 
             <!-- Ajoutez la section filtres ICI -->
