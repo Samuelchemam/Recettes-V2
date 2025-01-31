@@ -27,7 +27,16 @@
                 <input type="text" class="search-bar" placeholder="Rechercher une recette..." oninput="searchRecipes()">
                 <button class="filter-toggle">Filtres 🔍</button>
             </div>
-            
+            <!-- Nouvelle section favoris -->
+    <div class="favorites-section">
+        <div class="favorites-header">
+            <h3>⭐ Mes Favoris</h3>
+            <button onclick="toggleFavoritesView()" class="toggle-favorites-btn">
+                Voir mes favoris
+            </button>
+        </div>
+        <div id="favorites-container" class="favorites-container hidden"></div>
+    </div>
             <div class="filters-section hidden">
                 <div class="filters-grid">
                     <select class="filter-category">

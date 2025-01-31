@@ -33,7 +33,12 @@ function loadRecipes() {
     }, (error) => {
         console.error("Erreur lors du chargement des recettes :", error);
     });//
+    
 }
+const favoritesContainer = document.getElementById('favorites-container');
+        if (!favoritesContainer.classList.contains('hidden')) {
+            toggleFavoritesView();
+        }
 // Au début de script.js, après la déclaration des variables existantes
 const CATEGORIES = [
     'Entrée', 'Plat principal', 'Dessert', 'Boisson', 
@@ -428,7 +433,62 @@ function applyFilters() {
 // Modifier votre fonction loadRecipes existante
 function loadRecipes() {
     showLoadingState(); // Ajout de l'état de chargement
+    // Ajoutez cette nouvelle fonction après showLoadingState
+function toggleFavoritesView() {
+    const favoritesContainer = document.getElementById('favorites-container');
+    const isHidden = favoritesContainer.classList.contains('hidden');
     
+    if (isHidden) {
+        // Afficher les favoris
+        const favoriteRecipes = recipes.filter(recipe => recipe.favorite);
+        favoritesContainer.innerHTML = favoriteRecipes.map((recipe, index) => `
+            <div class="recipe-card mini">
+                <h4>${recipe.title}</h4>
+                <p class="author">Par ${recipe.author}</p>
+                <button onclick="toggleFavorite('${recipe.id}', ${index})" class="favorite-btn active">
+                    ❤️
+                </button>
+            </div>
+        `).join('');
+        favoritesContainer.classList.remove('hidden');
+    } else {
+        favoritesContainer.classList.add('hidden');
+    }
+}
+
+// Puis modifiez votre fonction loadRecipes existante
+// AVANT
+function loadRecipes() {
+    showLoadingState();
+    database.ref('recipes').once('value', (snapshot) => {
+        recipes = [];
+        snapshot.forEach((childSnapshot) => {
+            const recipe = { id: childSnapshot.key, ...childSnapshot.val() };
+            recipes.push(recipe);
+        });
+        displayRecipes(recipes);
+    });
+}
+
+// APRÈS
+function loadRecipes() {
+    showLoadingState();
+    
+    database.ref('recipes').once('value', (snapshot) => {
+        recipes = [];
+        snapshot.forEach((childSnapshot) => {
+            const recipe = { id: childSnapshot.key, ...childSnapshot.val() };
+            recipes.push(recipe);
+        });
+        displayRecipes(recipes);
+        
+        // Ajoutez cette ligne pour mettre à jour la section favoris
+        const favoritesContainer = document.getElementById('favorites-container');
+        if (!favoritesContainer.classList.contains('hidden')) {
+            toggleFavoritesView();
+        }
+    });
+}
     database.ref('recipes').once('value', (snapshot) => {
         recipes = [];
         snapshot.forEach((childSnapshot) => {
