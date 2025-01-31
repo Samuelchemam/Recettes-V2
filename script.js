@@ -141,6 +141,34 @@ function displayRecipes(recipesToShow) {
         showNotification("Erreur d'affichage", "error");
     }
 }
+function toggleFavorite(index) {
+    const recipe = recipes[index];
+    const recipeId = recipe.id;
+    
+    const newFavoriteState = !recipe.favorite;
+    
+    database.ref('recipes/' + recipeId).update({
+        favorite: newFavoriteState
+    }).then(() => {
+        recipe.favorite = newFavoriteState;
+        
+        const favoriteBtn = document.querySelectorAll('.favorite-btn')[index];
+        favoriteBtn.innerHTML = newFavoriteState ? '❤️' : '🤍';
+        
+        favoriteBtn.classList.add('favorite-animation');
+        setTimeout(() => {
+            favoriteBtn.classList.remove('favorite-animation');
+        }, 500);
+        
+        showNotification(
+            newFavoriteState ? 'Ajouté aux favoris' : 'Retiré des favoris',
+            'success'
+        );
+    }).catch(error => {
+        console.error("Erreur lors de la mise à jour du favori :", error);
+        showNotification("Erreur lors de la mise à jour du favori", "error");
+    });
+}
 // Basculer l'expansion des cartes
 function toggleExpand(index) {
     const card = document.querySelectorAll('.recipe-card')[index];
