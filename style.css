@@ -90,10 +90,12 @@ button:hover {
 /* Recipe Cards */
 .recipes-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(3, 1fr); /* Affiche 3 colonnes de taille égale */
+    gap: 2rem;
+    padding: 1rem;
+    max-width: 1400px;
+    margin: 0 auto;
 }
-
 .recipe-card {
     background: var(--card-bg);
     border-radius: 15px;
@@ -101,10 +103,9 @@ button:hover {
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    margin-bottom: 1rem;
     position: relative;
-    display: flex;
-    flex-direction: column;
+    height: fit-content;
+    margin: 0; /* Supprime la marge du bas */
 }
 .recipe-card:not(.expanded) {
     max-height: 200px;
@@ -239,17 +240,21 @@ input, textarea, select {
 }
 
 /* Responsive Design */
-@media (max-width: 640px) {
+@media (max-width: 1200px) {
     .recipes-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr); /* 2 colonnes sur écrans moyens */
     }
-    
+}
+
+@media (max-width: 768px) {
+    .recipes-grid {
+        grid-template-columns: 1fr; /* 1 colonne sur petits écrans */
+    }
+}
     .modal-content {
         width: 95%;
         margin: 1rem;
     }
-}
-
 /* Animations */
 @keyframes sparkle {
     0% { transform: scale(1); }
