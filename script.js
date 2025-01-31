@@ -21,7 +21,7 @@ let recipes = [];
 const recipesContainer = document.getElementById('recipes-container');
 const recipeForm = document.getElementById('recipe-form');
 
-// Charger les recettes depuis localStorage
+//Charger les recettes depuis localStorage
 function loadRecipes() {
     database.ref('recipes').once('value', (snapshot) => {
         recipes = [];
@@ -32,7 +32,7 @@ function loadRecipes() {
         displayRecipes(recipes);  // Affiche les recettes
     }, (error) => {
         console.error("Erreur lors du chargement des recettes :", error);
-    });
+    });//
 }
 // Au début de script.js, après la déclaration des variables existantes
 const CATEGORIES = [
@@ -254,3 +254,108 @@ function animateDifficultyStars() {
 
 // Chargement initial
 document.addEventListener('DOMContentLoaded', loadRecipes);
+// Système de notifications
+function showNotification(message, type = 'success') {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+
+// Système de pagination
+let currentPage = 1;
+const recipesPerPage = 6;
+
+function paginateRecipes(recipesArray) {
+    const start = (currentPage - 1) * recipesPerPage;
+    const end = start + recipesPerPage;
+    return recipesArray.slice(start, end);
+}
+
+// Gestion des filtres
+function initializeFilters() {
+    const filterCategory = document.querySelector('.filter-category');
+    const filterDifficulty = document.querySelector('.filter-difficulty');
+    const filterTime = document.querySelector('.filter-time');
+    
+    // Remplir les catégories dynamiquement
+    CATEGORIES.forEach(category => {
+        const option = document.createElement('option');
+        option.value = category;
+        option.textContent = category;
+        filterCategory.appendChild(option);
+    });
+
+    // Écouteurs d'événements pour les filtres
+    [filterCategory, filterDifficulty, filterTime].forEach(filter => {
+        filter.addEventListener('change', applyFilters);
+    });
+}
+
+function applyFilters() {
+    const category = document.querySelector('.filter-category').value;
+    const difficulty = document.querySelector('.filter-difficulty').value;
+    const time = document.querySelector('.filter-time').value;
+
+    let filteredRecipes = [...recipes];
+
+    if (category) {
+        filteredRecipes = filteredRecipes.filter(recipe => 
+            recipe.categories.includes(category));
+    }
+
+    if (difficulty) {
+        filteredRecipes = filteredRecipes.filter(recipe => 
+            recipe.difficulty === parseInt(difficulty));
+    }
+
+    if (time) {
+        filteredRecipes = filteredRecipes.filter(recipe => {
+            const totalTime = recipe.prepTime + recipe.cookTime;
+            return totalTime <= parseInt(time);
+        });
+    }
+
+    displayRecipes(filteredRecipes);
+}
+
+// Modifier votre fonction loadRecipes existante
+function loadRecipes() {
+    showLoadingState(); // Ajout de l'état de chargement
+    
+    database.ref('recipes').once('value', (snapshot) => {
+        recipes = [];
+        snapshot.forEach((childSnapshot) => {
+            const recipe = { id: childSnapshot.key, ...childSnapshot.val() };
+            recipes.push(recipe);
+        });
+        displayRecipes(paginateRecipes(recipes)); // Utilisation de la pagination
+        initializeFilters(); // Initialisation des filtres
+    }, (error) => {
+        console.error("Erreur lors du chargement des recettes :", error);
+        showNotification("Erreur lors du chargement des recettes", "error");
+    });
+}
+
+// Ajouter cette fonction juste après
+function showLoadingState() {
+    recipesContainer.innerHTML = Array(6).fill(`
+        <div class="recipe-card loading-skeleton">
+            <div class="skeleton-header"></div>
+            <div class="skeleton-body"></div>
+        </div>
+    `).join('');
+}
+// État de chargement
+function showLoadingState() {
+    recipesContainer.innerHTML = Array(6).fill(`
+        <div class="recipe-card loading-skeleton">
+            <div class="skeleton-header"></div>
+            <div class="skeleton-body"></div>
+        </div>
+    `).join('');
+}
