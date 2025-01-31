@@ -11,14 +11,39 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Recettes Collaboratives</h1>
-            <button class="theme-toggle" onclick="toggleTheme()">Mode Sombre</button>
-        </div>
+        <div class="container">
+            <nav class="main-nav">
+                <div class="logo">📖 Recettes Collaboratives</div>
+                <div class="nav-links">
+                    <a href="#recipes">Recettes</a>
+                    <a href="#add-recipe">Ajouter</a>
+                    <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+                </div>
+            </nav>
+            <input type="text" class="search-bar" placeholder="Rechercher une recette par titre ou ingrédient..." oninput="searchRecipes()">
 
-        <input type="text" class="search-bar" placeholder="Rechercher une recette par titre ou ingrédient..." oninput="searchRecipes()">
-
+            <!-- Ajoutez la section filtres ICI -->
+            <div class="filters-section">
+                <select class="filter-category">
+                    <option value="">Toutes les catégories</option>
+                </select>
+                <select class="filter-difficulty">
+                    <option value="">Difficulté</option>
+                    <option value="1">Très facile</option>
+                    <option value="2">Facile</option>
+                    <option value="3">Moyen</option>
+                    <option value="4">Difficile</option>
+                    <option value="5">Très difficile</option>
+                </select>
+                <select class="filter-time">
+                    <option value="">Temps de préparation</option>
+                    <option value="15">< 15 min</option>
+                    <option value="30">< 30 min</option>
+                    <option value="60">< 1h</option>
+                    <option value="61">> 1h</option>
+                </select>
+                <button class="sort-btn">Trier par ⌄</button>
+            </div>
         <form class="recipe-form" id="recipe-form">
             <h2>Ajouter une recette</h2>
             <div class="form-group">
