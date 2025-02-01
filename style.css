@@ -116,10 +116,10 @@ button:hover {
     position: relative;
     display: flex;
     flex-direction: column;
-    height: 200px;
+    min-height: 200px;
+    height: auto;
     overflow: hidden;
-    break-inside: avoid;
-    page-break-inside: avoid;
+    margin-bottom: 1rem;
 }
 
 .recipe-card:hover {

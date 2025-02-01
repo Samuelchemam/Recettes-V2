@@ -45,6 +45,10 @@ function loadRecipes() {
     });
 }
 function displayRecipes(recipesToShow) {
+    if (!Array.isArray(recipesToShow)) {
+        console.error('recipesToShow n\'est pas un tableau:', recipesToShow);
+        recipesToShow = [];
+    }
     try {
         recipesContainer.innerHTML = '';  // Vider d'abord le conteneur
         recipesToShow.forEach((recipe, index) => {
