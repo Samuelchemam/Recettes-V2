@@ -19,7 +19,6 @@
         <nav class="main-nav">
             <div class="logo">📖 Recettes Collaboratives</div>
             <div class="nav-links">
-                <a href="#recipes">Recettes</a>
                 <button id="add-recipe-btn" class="primary-btn">+ Nouvelle Recette</button>
                 <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
             </div>
@@ -32,6 +31,7 @@
                 <button class="filter-toggle">Filtres 🔍</button>
                 <button class="favorites-toggle" onclick="toggleFavoritesView()">
                     <i class="fas fa-heart"></i> Favoris
+                </button>
             </div>
             <div class="filters-section hidden">
                 <div class="filters-grid">
@@ -112,8 +112,38 @@
 
         <!-- Conteneur des recettes -->
         <div class="recipes-grid" id="recipes-container"></div>
+        
+        <!-- Modal des détails de la recette -->
+        <div id="recipe-details-modal" class="modal hidden">
+            <div class="modal-content recipe-details-content">
+                <button class="close-modal">×</button>
+                <div class="recipe-details">
+                    <h2 class="recipe-title"></h2>
+                    <div class="recipe-metadata">
+                        <span class="recipe-author"></span>
+                        <span class="recipe-time"></span>
+                        <span class="recipe-difficulty"></span>
+                    </div>
+                    <div class="recipe-ingredients">
+                        <h3>Ingrédients</h3>
+                        <ul class="ingredients-list"></ul>
+                    </div>
+                    <div class="recipe-steps">
+                        <h3>Instructions</h3>
+                        <ol class="steps-list"></ol>
+                    </div>
+                    <div class="comments-section">
+                        <h3>Commentaires</h3>
+                        <div class="comment-form">
+                            <textarea placeholder="Partagez votre expérience..." class="comment-input"></textarea>
+                            <button onclick="submitComment()" class="submit-btn">Publier</button>
+                        </div>
+                        <div id="comments-list"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <script src="script.js"></script>
 </body>
-
 </html>

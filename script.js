@@ -55,7 +55,9 @@ function displayRecipes(recipesToShow) {
             const recipeCard = document.createElement('div');
             recipeCard.className = 'recipe-card';
             recipeCard.setAttribute('data-expanded', 'false');
-            recipeCard.onclick = () => toggleExpand(index);
+            recipeCard.onclick = () => {
+                toggleExpand(index);
+            }
             
             recipeCard.innerHTML = `
                 <div class="card-header">
@@ -122,14 +124,16 @@ function displayRecipes(recipesToShow) {
                         <ol>${recipe.steps.map(s => `<li>${s}</li>`).join('')}</ol>
                     </div>
                     <div class="card-actions">
-                        <button class="action-btn edit-btn" onclick="editRecipe(${index}); event.stopPropagation()">
-                            <i class="fas fa-edit"></i> Modifier
-                        </button>
-                        <button class="action-btn delete-btn" onclick="deleteRecipe(${index}); event.stopPropagation()">
-                            <i class="fas fa-trash-alt"></i> Supprimer
-                        </button>
-                    </div>
-                </div>
+    <button class="action-btn comments-btn" onclick="showRecipeDetails(${JSON.stringify(recipe).replace(/"/g, '&quot;')}); event.stopPropagation()">
+        <i class="fas fa-comments"></i> Commentaires
+    </button>
+    <button class="action-btn edit-btn" onclick="editRecipe(${index}); event.stopPropagation()">
+        <i class="fas fa-edit"></i> Modifier
+    </button>
+    <button class="action-btn delete-btn" onclick="deleteRecipe(${index}); event.stopPropagation()">
+        <i class="fas fa-trash-alt"></i> Supprimer
+    </button>
+</div>
             `;
             
             recipesContainer.appendChild(recipeCard);
@@ -570,4 +574,158 @@ function toggleFavoritesView() {
     } else {
         displayRecipes(recipes);
     }
+}
+// Configuration Firebase pour les commentaires
+let currentRecipeId = null;
+
+// Fonction pour soumettre un commentaire
+function submitComment() {
+    if (!currentRecipeId) {
+        showNotification('Erreur lors de l\'ajout du commentaire', 'error');
+        return;
+    }
+
+    const commentInput = document.querySelector('.comment-input');
+    const commentText = commentInput.value.trim();
+    
+    if (!commentText) {
+        showNotification('Veuillez écrire un commentaire', 'error');
+        return;
+    }
+
+    const newComment = {
+        text: commentText,
+        date: new Date().toISOString(),
+        timestamp: firebase.database.ServerValue.TIMESTAMP,
+        likes: 0
+    };
+
+    // Sauvegarde dans Firebase
+    firebase.database()
+        .ref('comments/' + currentRecipeId)
+        .push(newComment)
+        .then(() => {
+            commentInput.value = '';
+            showNotification('Commentaire publié !', 'success');
+            loadComments(currentRecipeId);
+        })
+        .catch(error => {
+            showNotification('Erreur lors de la publication', 'error');
+            console.error(error);
+        });
+}
+
+// Fonction pour charger les commentaires
+function loadComments(recipeId) {
+    currentRecipeId = recipeId;
+    const commentsList = document.getElementById('comments-list');
+    commentsList.innerHTML = '<div class="loading">Chargement des commentaires...</div>';
+
+    firebase.database()
+        .ref('comments/' + recipeId)
+        .orderByChild('timestamp')
+        .on('value', (snapshot) => {
+            commentsList.innerHTML = '';
+            
+            if (!snapshot.exists()) {
+                commentsList.innerHTML = '<div class="no-comments">Soyez le premier à commenter !</div>';
+                return;
+            }
+
+            // Convertir les données en tableau et inverser l'ordre
+            const comments = [];
+            snapshot.forEach((childSnapshot) => {
+                comments.push({
+                    id: childSnapshot.key,
+                    ...childSnapshot.val()
+                });
+            });
+            comments.reverse();
+
+            // Afficher les commentaires
+            comments.forEach(comment => {
+                const date = new Date(comment.date).toLocaleDateString('fr-FR', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                const commentElement = `
+                    <div class="comment" data-id="${comment.id}">
+                        <div class="comment-header">
+                            <span class="comment-date">${date}</span>
+                            <button onclick="likeComment('${recipeId}', '${comment.id}', ${comment.likes})" class="like-btn">
+                                ❤️ ${comment.likes || 0}
+                            </button>
+                        </div>
+                        <p class="comment-text">${comment.text}</p>
+                    </div>
+                `;
+                commentsList.innerHTML += commentElement;
+            });
+        });
+}
+
+// Fonction pour liker un commentaire
+function likeComment(recipeId, commentId, currentLikes) {
+    firebase.database()
+        .ref(`comments/${recipeId}/${commentId}/likes`)
+        .set(currentLikes + 1)
+        .then(() => {
+            showNotification('Like ajouté !', 'success');
+        })
+        .catch(error => {
+            showNotification('Erreur lors du like', 'error');
+            console.error(error);
+        });
+}
+
+function showRecipeDetails(recipe) {
+    const modal = document.getElementById('recipe-details-modal');
+    modal.classList.remove('hidden');
+
+    // Remplir les détails de la recette
+    const detailsContent = `
+        <h2 class="recipe-title">${recipe.title}</h2>
+        <div class="recipe-metadata">
+            <span class="recipe-author">Par ${recipe.author}</span>
+            <span class="recipe-time">⏱️ Total: ${recipe.prepTime + recipe.cookTime} min</span>
+            <div class="recipe-difficulty">${getDifficultyIcons(recipe.difficulty)}</div>
+        </div>
+        <div class="recipe-ingredients">
+            <h3>Ingrédients</h3>
+            <ul class="ingredients-list">
+                ${recipe.ingredients.map(ingredient => `<li>${ingredient}</li>`).join('')}
+            </ul>
+        </div>
+        <div class="recipe-steps">
+            <h3>Instructions</h3>
+            <ol class="steps-list">
+                ${recipe.steps.map(step => `<li>${step}</li>`).join('')}
+            </ol>
+        </div>
+        <div class="comments-section">
+            <h3>Commentaires</h3>
+            <div class="comment-form">
+                <textarea placeholder="Partagez votre expérience..." class="comment-input"></textarea>
+                <button onclick="submitComment()" class="submit-btn">Publier</button>
+            </div>
+            <div id="comments-list"></div>
+        </div>
+    `;
+
+    document.querySelector('.recipe-details').innerHTML = detailsContent;
+    loadComments(recipe.id);
+
+    // Gestionnaires de fermeture
+    const closeBtn = modal.querySelector('.close-modal');
+    closeBtn.onclick = () => modal.classList.add('hidden');
+    
+    modal.onclick = (e) => {
+        if (e.target === modal) {
+            modal.classList.add('hidden');
+        }
+    };
 }
