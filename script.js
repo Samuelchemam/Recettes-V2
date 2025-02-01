@@ -36,6 +36,7 @@ function loadRecipes() {
             const recipe = { id: childSnapshot.key, ...childSnapshot.val() };
             recipes.push(recipe);
         });
+        console.log("Catégories des recettes:", recipes.map(r => r.categories)); // Ajout ici
         displayRecipes(recipes);
         initializeFilters();
     }, (error) => {
@@ -60,9 +61,10 @@ function displayRecipes(recipesToShow) {
                         <span class="time-badge">⏱️ ${recipe.prepTime + recipe.cookTime} min</span>
                     </div>
                     <div class="categories-tags">
-                        ${recipe.categories ? recipe.categories.map(cat => 
-                            <span class="category-tag" data-category="${cat}">${cat}</span>
-                        ).join('') : ''}
+                        ${recipe.categories ? recipe.categories.map(cat => {
+                            console.log("Génération tag pour catégorie:", cat);
+                            return `<span class="category-tag" data-category="${cat}">${cat}</span>`;
+                        }).join('') : ''}
                     </div>
                 </div>
                 <div class="card-content">
