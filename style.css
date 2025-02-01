@@ -135,18 +135,22 @@ button:hover {
 
 .card-content {
     opacity: 0;
+    height: 0;
     transform: translateY(10px);
-    transition: opacity 0.3s ease, transform 0.3s ease;
-    display: none;
-    padding-top: 1rem;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    padding: 0 1rem;
+    position: relative;
+    background: var(--card-bg);
 }
 
 .recipe-card.expanded .card-content {
     opacity: 1;
+    height: auto;
     transform: translateY(0);
-    display: block;
+    padding: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
-
 /* ===== Badges de temps ===== */
 .time-badge {
     padding: 4px 8px;
