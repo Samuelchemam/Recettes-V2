@@ -54,11 +54,14 @@ function displayRecipes(recipesToShow) {
                         <h3>${recipe.title}</h3>
                     </div>
                     <div class="difficulty">
-                        ${'★'.repeat(recipe.difficulty)}${'☆'.repeat(5 - recipe.difficulty)}
+                         ${getDifficultyIcons(recipe.difficulty)}
                     </div>
                     <p class="author">Par ${recipe.author}</p>
                     <div class="recipe-quick-info">
-                        <span class="time-badge">⏱️ ${recipe.prepTime + recipe.cookTime} min</span>
+                        <span class="time-badge ${getTimeClass(recipe.prepTime + recipe.cookTime)}">
+                         ${getTimeIcon(recipe.prepTime + recipe.cookTime)} 
+                            ${recipe.prepTime + recipe.cookTime} min
+                        </span>
                     </div>
                     <div class="categories-tags">
                         ${recipe.categories ? recipe.categories.map(cat => {
@@ -81,9 +84,12 @@ function displayRecipes(recipesToShow) {
                         <ol>${recipe.steps.map(s => `<li>${s}</li>`).join('')}</ol>
                     </div>
                     <div class="card-actions">
-                        <button class="edit-btn" onclick="editRecipe(${index}); event.stopPropagation()">✏️ Modifier</button>
-                        <button class="delete-btn" onclick="deleteRecipe(${index}); event.stopPropagation()">🗑️ Supprimer</button>
-                    </div>
+                        <button class="action-btn edit-btn" onclick="editRecipe(${index}); event.stopPropagation()">
+                        <i class="fas fa-edit"></i> Modifier
+                    </button>
+                    <button class="action-btn delete-btn" onclick="deleteRecipe(${index}); event.stopPropagation()">
+                        <i class="fas fa-trash-alt"></i> Supprimer
+                    </button>
                 </div>
             </div>
         `).join('');
@@ -389,4 +395,33 @@ function showNotification(message, type = 'success') {
     setTimeout(() => {
         notification.remove();
     }, 3000);
+}
+function getTimeClass(totalTime) {
+    if (totalTime <= 30) return 'quick-recipe';
+    if (totalTime <= 60) return 'medium-recipe';
+    return 'long-recipe';
+}
+
+function getTimeIcon(totalTime) {
+    if (totalTime <= 30) return '⚡'; // rapide
+    if (totalTime <= 60) return '⏱️'; // moyen
+    return '🕐'; // long
+}
+function getDifficultyIcons(level) {
+    const icons = {
+        1: '<i class="fas fa-coffee" title="Très facile"></i>',
+        2: '<i class="fas fa-egg" title="Facile"></i>',
+        3: '<i class="fas fa-utensils" title="Intermédiaire"></i>',
+        4: '<i class="fas fa-concierge-bell" title="Difficile"></i>',
+        5: '<i class="fas fa-fire" title="Expert"></i>'
+    };
+    let result = '';
+    for (let i = 1; i <= 5; i++) {
+        if (i <= level) {
+            result += icons[i];
+        } else {
+            result += '<i class="far fa-circle"></i>';
+        }
+    }
+    return result;
 }
