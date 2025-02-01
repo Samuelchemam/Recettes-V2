@@ -107,16 +107,12 @@ button:hover {
 }
 
 .recipe-card {
-    position: relative;
     background: var(--card-bg);
-    border-radius: 1.5rem;
-    overflow: hidden;
+    border-radius: 15px;
+    padding: 1rem;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: var(--card-shadow);
-    height: 200px;
-    break-inside: avoid;
-    page-break-inside: avoid;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .recipe-card:hover {
@@ -136,9 +132,9 @@ button:hover {
 }
 
 .card-header {
-    padding: 2rem;
-    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-    color: white;
+    margin: -1rem -1rem 1rem -1rem;
+    padding: 1rem;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
 }
 .recipe-title {
     font-size: 1.75rem;
