@@ -44,30 +44,34 @@ function loadRecipes() {
         showNotification("Erreur lors du chargement des recettes", "error");
     });
 }
-
 function displayRecipes(recipesToShow) {
     try {
-        recipesContainer.innerHTML = recipesToShow.map((recipe, index) => `
-            <div class="recipe-card" onclick="toggleExpand(${index})" data-expanded="false">
+        recipesContainer.innerHTML = '';  // Vider d'abord le conteneur
+        recipesToShow.forEach((recipe, index) => {
+            const recipeCard = document.createElement('div');
+            recipeCard.className = 'recipe-card';
+            recipeCard.setAttribute('data-expanded', 'false');
+            recipeCard.onclick = () => toggleExpand(index);
+            
+            recipeCard.innerHTML = `
                 <div class="card-header">
                     <div class="card-header-top">
                         <h3>${recipe.title}</h3>
                     </div>
                     <div class="difficulty">
-                         ${getDifficultyIcons(recipe.difficulty)}
+                        ${getDifficultyIcons(recipe.difficulty)}
                     </div>
                     <p class="author">Par ${recipe.author}</p>
                     <div class="recipe-quick-info">
                         <span class="time-badge ${getTimeClass(recipe.prepTime + recipe.cookTime)}">
-                         ${getTimeIcon(recipe.prepTime + recipe.cookTime)} 
+                            ${getTimeIcon(recipe.prepTime + recipe.cookTime)} 
                             ${recipe.prepTime + recipe.cookTime} min
                         </span>
                     </div>
                     <div class="categories-tags">
-                        ${recipe.categories ? recipe.categories.map(cat => {
-                            console.log("Génération tag pour catégorie:", cat);
-                            return `<span class="category-tag" data-category="${cat}">${cat}</span>`;
-                        }).join('') : ''}
+                        ${recipe.categories ? recipe.categories.map(cat => 
+                            `<span class="category-tag" data-category="${cat}">${cat}</span>`
+                        ).join('') : ''}
                     </div>
                 </div>
                 <div class="card-content">
@@ -85,21 +89,23 @@ function displayRecipes(recipesToShow) {
                     </div>
                     <div class="card-actions">
                         <button class="action-btn edit-btn" onclick="editRecipe(${index}); event.stopPropagation()">
-                        <i class="fas fa-edit"></i> Modifier
-                    </button>
-                    <button class="action-btn delete-btn" onclick="deleteRecipe(${index}); event.stopPropagation()">
-                        <i class="fas fa-trash-alt"></i> Supprimer
-                    </button>
+                            <i class="fas fa-edit"></i> Modifier
+                        </button>
+                        <button class="action-btn delete-btn" onclick="deleteRecipe(${index}); event.stopPropagation()">
+                            <i class="fas fa-trash-alt"></i> Supprimer
+                        </button>
+                    </div>
                 </div>
-            </div>
-        `).join('');
+            `;
+            
+            recipesContainer.appendChild(recipeCard);
+        });
         animateDifficultyStars();
     } catch (e) {
         console.error("Erreur lors de l'affichage des recettes :", e);
         showNotification("Erreur d'affichage", "error");
     }
 }
-
 // Autres fonctions existantes...
 function toggleTheme() {
     document.body.classList.toggle('dark-mode');
