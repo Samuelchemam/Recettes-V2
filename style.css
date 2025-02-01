@@ -202,10 +202,21 @@ button:hover {
 }
 
 /* ===== Indicateurs de difficulté ===== */
+.difficulty-container {
+    margin: 8px 0;
+}
+
+.difficulty-label {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--text-color);
+    margin-bottom: 4px;
+    opacity: 0.8;
+}
+
 .difficulty {
     display: flex;
     gap: 8px;
-    margin: 8px 0;
 }
 
 .difficulty i {

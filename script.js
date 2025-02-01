@@ -58,9 +58,12 @@ function displayRecipes(recipesToShow) {
                     <div class="card-header-top">
                         <h3>${recipe.title}</h3>
                     </div>
+                   <div class="difficulty-container">
+                    <span class="difficulty-label">Difficulté</span>
                     <div class="difficulty">
-                        ${getDifficultyIcons(recipe.difficulty)}
-                    </div>
+                    ${getDifficultyIcons(recipe.difficulty)}
+                      </div>
+                </div>
                     <p class="author">Par ${recipe.author}</p>
                     <div class="recipe-quick-info">
                         <span class="time-badge ${getTimeClass(recipe.prepTime + recipe.cookTime)}">
