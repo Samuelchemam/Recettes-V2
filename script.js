@@ -61,7 +61,7 @@ function displayRecipes(recipesToShow) {
                     </div>
                     <div class="categories-tags">
                         ${recipe.categories ? recipe.categories.map(cat => 
-                            `<span class="category-tag">${cat}</span>`
+                            <span class="category-tag" data-category="${cat}">${cat}</span>
                         ).join('') : ''}
                     </div>
                 </div>
