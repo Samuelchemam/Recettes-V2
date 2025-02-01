@@ -136,6 +136,43 @@ button:hover {
     transform: translateY(0);
     display: block;
 }
+.category-tag {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    margin: 2px;
+    display: inline-block;
+    color: white;
+    font-weight: 500;
+}
+
+.category-tag[data-category="Entrée"] {
+    background-color: #FF6B6B;
+}
+
+.category-tag[data-category="Plat principal"] {
+    background-color: #4ECDC4;
+}
+
+.category-tag[data-category="Dessert"] {
+    background-color: #FFB347;
+}
+
+.category-tag[data-category="Boisson"] {
+    background-color: #45B7D1;
+}
+
+.category-tag[data-category="Végétarien"] {
+    background-color: #96CEB4;
+}
+
+.category-tag[data-category="Vegan"] {
+    background-color: #82D173;
+}
+
+.category-tag[data-category="Sans gluten"] {
+    background-color: #9B59B6;
+}
 
 /* Form Styles */
 .form-group {
@@ -252,41 +289,4 @@ input, textarea, select {
     0% { transform: scale(1); }
     50% { transform: scale(1.1); }
     100% { transform: scale(1); }
-}
-.category-tag {
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 0.8rem;
-    margin: 2px;
-    display: inline-block;
-    color: white;
-    font-weight: 500;
-}
-
-.category-tag[data-category="Entrée"] {
-    background-color: #FF6B6B;
-}
-
-.category-tag[data-category="Plat principal"] {
-    background-color: #4ECDC4;
-}
-
-.category-tag[data-category="Dessert"] {
-    background-color: #FFB347;
-}
-
-.category-tag[data-category="Boisson"] {
-    background-color: #45B7D1;
-}
-
-.category-tag[data-category="Végétarien"] {
-    background-color: #96CEB4;
-}
-
-.category-tag[data-category="Vegan"] {
-    background-color: #82D173;
-}
-
-.category-tag[data-category="Sans gluten"] {
-    background-color: #9B59B6;
 }
