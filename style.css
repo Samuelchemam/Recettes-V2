@@ -32,15 +32,20 @@ body {
 }
 
 /* Navigation */
-.main-nav {
+main-nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 1rem;
-    background: var(--card-bg);
+    background: linear-gradient(135deg, var(--primary-color), #8b5cf6);
     border-radius: 0.5rem;
-    margin-bottom: 2rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.logo {
+    color: white;
+    font-size: 1.2rem;
+    font-weight: bold;
 }
 
 .nav-links {
@@ -50,11 +55,8 @@ body {
 }
 
 .nav-links a {
-    color: var(--text-color);
-    text-decoration: none;
-    padding: 0.5rem 1rem;
-    border-radius: 0.25rem;
-    transition: background-color 0.2s ease;
+    color: white;
+    opacity: 0.9;
 }
 
 .nav-links a:hover {
@@ -209,7 +211,7 @@ button:hover {
 .difficulty-label {
     display: block;
     font-size: 0.9rem;
-    color: var(--text-color);
+    color: white;
     margin-bottom: 4px;
     opacity: 0.8;
 }
@@ -337,13 +339,17 @@ input, textarea, select {
 .search-bar {
     flex: 1;
     padding: 0.75rem 1rem;
+    padding-left: 2.5rem;
     border: 2px solid var(--primary-color);
     border-radius: 2rem;
-    background: var(--card-bg);
-    font-size: 1rem;
+    background: url('data:image/svg+xml,...') no-repeat 12px center;
+    background-size: 1.2rem;
     transition: all 0.3s ease;
 }
-
+.search-bar:focus {
+    box-shadow: 0 0 0 3px rgba(var(--primary-color-rgb), 0.2);
+    outline: none;
+}
 .filters-section {
     background: var(--card-bg);
     padding: 1rem;
