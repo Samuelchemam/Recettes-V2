@@ -114,9 +114,9 @@ button:hover {
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: var(--card-shadow);
-    min-height: 200px; /* Changement de height en min-height */
-    display: flex;
-    flex-direction: column;
+    height: 200px;
+    break-inside: avoid;
+    page-break-inside: avoid;
 }
 
 .recipe-card:hover {
@@ -129,10 +129,7 @@ button:hover {
     grid-column: 1 / -1;
     width: 100%;
     z-index: 1;
-    flex-grow: 1;
-    position: relative;
 }
-
 .recipe-card:not(.expanded):hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 12px rgba(0,0,0,0.15);
@@ -159,13 +156,14 @@ button:hover {
     padding: 0 1rem;
     position: relative;
     background: var(--card-bg);
+    display: none;
 }
 .recipe-card.expanded .card-content {
     opacity: 1;
     height: auto;
     transform: translateY(0);
     padding: 1rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: block;
 }
 /* ===== Badges de temps ===== */
 .time-badge {
