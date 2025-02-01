@@ -136,30 +136,12 @@ button:hover {
     transform: translateY(0);
     display: block;
 }
-/* ===== Badges de temps ===== */
 .time-badge {
     padding: 4px 8px;
     border-radius: 12px;
     font-size: 0.8rem;
     display: inline-block;
 }
-
-.quick-recipe {
-    background-color: #4CAF50;
-    color: white;
-}
-
-.medium-recipe {
-    background-color: #FFA726;
-    color: white;
-}
-
-.long-recipe {
-    background-color: #EF5350;
-    color: white;
-}
-
-/* ===== Boutons d'action ===== */
 .action-btn {
     display: inline-flex;
     align-items: center;
@@ -170,23 +152,6 @@ button:hover {
     cursor: pointer;
     transition: all 0.3s ease;
 }
-
-.edit-btn {
-    background-color: #4CAF50;
-    color: white;
-}
-
-.delete-btn {
-    background-color: #f44336;
-    color: white;
-}
-
-.action-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-}
-
-/* ===== Indicateurs de difficulté ===== */
 .difficulty {
     display: flex;
     gap: 8px;
@@ -203,6 +168,11 @@ button:hover {
 .difficulty i.fa-utensils { color: #FFA726; }
 .difficulty i.fa-concierge-bell { color: #F44336; }
 .difficulty i.fa-fire { color: #E91E63; }
+.edit-btn {
+    background-color: #4CAF50;
+    color: white;
+}
+
 .delete-btn {
     background-color: #f44336;
     color: white;
