@@ -114,7 +114,9 @@ button:hover {
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: var(--card-shadow);
-    height: 200px; /* Ajout de la hauteur fixe */
+    min-height: 200px; /* Changement de height en min-height */
+    display: flex;
+    flex-direction: column;
 }
 
 .recipe-card:hover {
@@ -127,6 +129,8 @@ button:hover {
     grid-column: 1 / -1;
     width: 100%;
     z-index: 1;
+    flex-grow: 1;
+    position: relative;
 }
 
 .recipe-card:not(.expanded):hover {
