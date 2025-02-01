@@ -562,3 +562,41 @@ input, textarea, select {
     padding: 0.5rem;
     border-radius: 0.5rem;
 }
+.card-header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.favorite-btn {
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0.5rem;
+    border-radius: 50%;
+    position: relative;
+    z-index: 2;
+}
+
+.favorite-btn:hover i {
+    transform: scale(1.2);
+}
+
+.favorite-btn:hover {
+    transform: scale(1.1);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.favorite-btn.active {
+    color: #ff4757;
+    animation: heartBeat 0.3s ease-in-out;
+}
+
+@keyframes heartBeat {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}

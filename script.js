@@ -59,8 +59,15 @@ function displayRecipes(recipesToShow) {
             
             recipeCard.innerHTML = `
                 <div class="card-header">
-                    <div class="card-header-top">
-                        <h3>${recipe.title}</h3>
+                <div class="card-header">
+    <div class="card-header-top">
+        <h3>${recipe.title}</h3>
+        <button class="favorite-btn ${isRecipeFavorite(recipe.id) ? 'active' : ''}" 
+                onclick="toggleFavorite('${recipe.id}', '${recipe.title}'); event.stopPropagation()">
+            <i class="fas fa-heart"></i>
+        </button>
+    </div>
+</div>
                     </div>
                    <div class="difficulty-container">
                     <span class="difficulty-label">Difficulté</span>
@@ -521,3 +528,46 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+// Gestion des favoris
+function isRecipeFavorite(recipeId) {
+    const favorites = JSON.parse(localStorage.getItem('favorites') || '{}');
+    return !!favorites[recipeId];
+}
+
+function toggleFavorite(recipeId, recipeTitle) {
+    const favorites = JSON.parse(localStorage.getItem('favorites') || '{}');
+    
+    if (favorites[recipeId]) {
+        delete favorites[recipeId];
+        showNotification(`${recipeTitle} retiré des favoris`, 'info');
+    } else {
+        favorites[recipeId] = {
+            title: recipeTitle,
+            dateAdded: new Date().toISOString()
+        };
+        showNotification(`${recipeTitle} ajouté aux favoris`, 'success');
+    }
+    
+    localStorage.setItem('favorites', JSON.stringify(favorites));
+    
+    // Mise à jour visuelle du bouton
+    const favoriteBtn = document.querySelector(`[onclick*="${recipeId}"]`);
+    if (favoriteBtn) {
+        favoriteBtn.classList.toggle('active');
+    }
+}
+let showingFavorites = false;
+
+function toggleFavoritesView() {
+    showingFavorites = !showingFavorites;
+    const favBtn = document.querySelector('.favorites-toggle');
+    favBtn.classList.toggle('active');
+    
+    if (showingFavorites) {
+        const favorites = JSON.parse(localStorage.getItem('favorites') || '{}');
+        const favoriteRecipes = recipes.filter(recipe => favorites[recipe.id]);
+        displayRecipes(favoriteRecipes);
+    } else {
+        displayRecipes(recipes);
+    }
+}
