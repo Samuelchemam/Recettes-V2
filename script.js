@@ -86,10 +86,30 @@ function displayRecipes(recipesToShow) {
                         <p>⏲️ Préparation : ${recipe.prepTime} min</p>
                         <p>🔥 Cuisson : ${recipe.cookTime} min</p>
                     </div>
-                    <div class="ingredients-section">
-                        <h4>Ingrédients :</h4>
-                        <ul>${recipe.ingredients.map(i => `<li>${i}</li>`).join('')}</ul>
-                    </div>
+                 <div class="ingredients-section">
+    <h4>Ingrédients :</h4>
+    <div class="portions-calculator">
+        <label>Nombre de personnes :</label>
+        <div class="portions-controls">
+            <button onclick="adjustPortions(${index}, 'decrease'); event.stopPropagation()">-</button>
+            <span class="portions-count">${recipe.portions || 4}</span>
+            <button onclick="adjustPortions(${index}, 'increase'); event.stopPropagation()">+</button>
+        </div>
+    </div>
+    <ul class="ingredients-list" data-base-portions="${recipe.portions || 4}">
+        ${recipe.ingredients.map(i => {
+            const parts = i.split(' ');
+            const quantity = parseFloat(parts[0]);
+            const unit = parts[1];
+            const ingredient = parts.slice(2).join(' ');
+            if (!isNaN(quantity)) {
+                return `<li data-original-quantity="${quantity}" data-unit="${unit}" data-ingredient="${ingredient}">${quantity} ${unit} ${ingredient}</li>`;
+            }
+            return `<li>${i}</li>`;
+        }).join('')}
+
+    </ul>
+</div>
                     <div class="steps-section">
                         <h4>Étapes :</h4>
                         <ol>${recipe.steps.map(s => `<li>${s}</li>`).join('')}</ol>
@@ -130,7 +150,8 @@ recipeForm.addEventListener('submit', function(event) {
         date: new Date().toLocaleDateString(),
         categories: Array.from(document.getElementById('categories').selectedOptions).map(option => option.value),
         prepTime: parseInt(document.getElementById('prepTime').value) || 0,
-        cookTime: parseInt(document.getElementById('cookTime').value) || 0
+        cookTime: parseInt(document.getElementById('cookTime').value) || 0,
+        portions: parseInt(document.getElementById('portions').value) || 4
     };
 
     database.ref('recipes').push(recipe, (error) => {
@@ -238,9 +259,17 @@ function editRecipe(index) {
             </div>
 
             <div class="form-group">
-                <label for="edit-ingredients">Ingrédients (un par ligne)</label>
-                <textarea class="edit-ingredients" rows="4" onclick="event.stopPropagation()">${recipe.ingredients.join('\n')}</textarea>
-            </div>
+    <label for="edit-ingredients">Ingrédients (un par ligne)</label>
+    <div class="portions-calculator">
+        <label>Nombre de personnes :</label>
+        <div class="portions-controls">
+            <button onclick="adjustPortionsEdit(${index}, 'decrease'); event.stopPropagation()">-</button>
+            <span class="portions-count-edit">${recipe.portions || 4}</span>
+            <button onclick="adjustPortionsEdit(${index}, 'increase'); event.stopPropagation()">+</button>
+        </div>
+    </div>
+    <textarea class="edit-ingredients" rows="4" onclick="event.stopPropagation()" data-base-portions="${recipe.portions || 4}">${recipe.ingredients.join('\n')}</textarea>
+</div>
             
             <div class="form-group">
                 <label for="edit-steps">Étapes (un par ligne)</label>
@@ -348,6 +377,32 @@ function initializeFilters() {
     }
 }
 
+function adjustPortions(recipeIndex, action) {
+    const card = document.querySelectorAll('.recipe-card')[recipeIndex];
+    const portionsElement = card.querySelector('.portions-count');
+    const ingredientsList = card.querySelector('.ingredients-list');
+    const basePortions = parseInt(ingredientsList.dataset.basePortions);
+    let currentPortions = parseInt(portionsElement.textContent);
+
+    if (action === 'increase') {
+        currentPortions++;
+    } else if (action === 'decrease' && currentPortions > 1) {
+        currentPortions--;
+    }
+
+    portionsElement.textContent = currentPortions;
+    
+    const items = ingredientsList.querySelectorAll('li[data-original-quantity]');
+    items.forEach(item => {
+        const originalQuantity = parseFloat(item.dataset.originalQuantity);
+        const unit = item.dataset.unit;
+        const ingredient = item.dataset.ingredient;
+        if (!isNaN(originalQuantity)) {
+            const newQuantity = (originalQuantity * currentPortions / basePortions).toFixed(1);
+            item.textContent = `${newQuantity} ${unit} ${ingredient}`;
+        }
+    });
+}
 function applyFilters() {
     const category = document.querySelector('.filter-category').value;
     const difficulty = document.querySelector('.filter-difficulty').value;
@@ -438,3 +493,31 @@ function getDifficultyIcons(level) {
     }
     return result;
 }
+// Gestion de l'indicateur de scroll et du bouton retour en haut
+document.addEventListener('DOMContentLoaded', function() {
+    const scrollIndicator = document.querySelector('.scroll-indicator');
+    const scrollTopBtn = document.querySelector('.scroll-top-btn');
+
+    // Mise à jour de l'indicateur de scroll
+    window.addEventListener('scroll', function() {
+        const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+        const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        const scrolled = (winScroll / height) * 100;
+        scrollIndicator.style.width = scrolled + '%';
+
+        // Afficher/cacher le bouton retour en haut
+        if (winScroll > 300) {
+            scrollTopBtn.style.display = 'block';
+        } else {
+            scrollTopBtn.style.display = 'none';
+        }
+    });
+
+    // Action du bouton retour en haut
+    scrollTopBtn.addEventListener('click', function() {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    });
+});

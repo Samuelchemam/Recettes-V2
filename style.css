@@ -331,6 +331,17 @@ input, textarea, select {
     border-radius: 0.25rem;
     background: #ffffff; /* Fond blanc en mode clair */
     color: #1a202c; /* Texte foncé en mode clair */
+    input, textarea, select {
+        transition: border 0.3s ease, box-shadow 0.3s ease;
+        border: 2px solid transparent;
+        background: rgba(255, 255, 255, 0.9);
+    }
+    
+    input:focus, textarea:focus, select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1);
+        outline: none;
+    }
 }
 
 .dark-mode input,
@@ -445,4 +456,109 @@ input, textarea, select {
     0% { transform: scale(1); }
     50% { transform: scale(1.1); }
     100% { transform: scale(1); }
+}
+/* Indicateur de scroll */
+.scroll-indicator {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    background: var(--accent-color);
+    z-index: 1001;
+    width: 0;
+    transition: width 0.3s ease;
+}
+
+/* Bouton retour en haut */
+.floating-actions {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 1000;
+}
+
+.scroll-top-btn {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: none;
+    font-size: 1.2rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+}
+
+.scroll-top-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    background: var(--primary-dark);
+}
+
+/* Version mobile */
+@media (max-width: 768px) {
+    .floating-actions {
+        bottom: 1rem;
+        right: 1rem;
+    }
+    
+    .scroll-top-btn {
+        width: 40px;
+        height: 40px;
+    }
+}
+.portions-calculator {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 1rem 0;
+    padding: 0.5rem;
+    background: rgba(var(--primary-color-rgb), 0.1);
+    border-radius: 0.5rem;
+}
+
+.portions-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.portions-controls button {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: none;
+    background: var(--primary-color);
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.portions-controls button:hover {
+    transform: scale(1.1);
+    background: var(--primary-dark);
+}
+
+.portions-count {
+    font-weight: bold;
+    min-width: 20px;
+    text-align: center;
+}
+.portions-count-edit {
+    font-weight: bold;
+    min-width: 20px;
+    text-align: center;
+    color: var(--text-color);
+}
+
+.edit-form .portions-calculator {
+    margin: 1rem 0;
+    background: rgba(var(--primary-color-rgb), 0.1);
+    padding: 0.5rem;
+    border-radius: 0.5rem;
 }
