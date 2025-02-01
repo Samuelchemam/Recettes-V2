@@ -93,6 +93,7 @@ button:hover {
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 1.5rem;
     width: 100%;
+    position: relative;
 }
 
 .recipe-card {
@@ -105,19 +106,22 @@ button:hover {
     position: relative;
     display: flex;
     flex-direction: column;
-    height: auto;
-    min-height: 200px;
+    height: 200px;
     overflow: hidden;
+    break-inside: avoid;
+    page-break-inside: avoid;
 }
-
-.recipe-card:not(.expanded) {
-    max-height: 200px;
-}
-
 .recipe-card.expanded {
     height: auto;
-    max-height: none;
+    min-height: 200px;
     grid-column: 1 / -1;
+    width: 100%;
+    z-index: 1;
+}
+
+.recipe-card:not(.expanded):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
 }
 
 .card-header {
