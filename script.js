@@ -161,8 +161,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });// Fonctions de gestion des recettes
 function toggleExpand(index) {
-    recipes[index].expanded = !recipes[index].expanded;
-    displayRecipes(recipes);
+    const card = document.querySelectorAll('.recipe-card')[index];
+    const isExpanded = card.getAttribute('data-expanded') === 'true';
+    
+    card.setAttribute('data-expanded', !isExpanded);
+    card.classList.toggle('expanded');
 }
 
 function deleteRecipe(index) {
