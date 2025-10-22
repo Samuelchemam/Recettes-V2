@@ -1,21 +1,21 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recettes Collaboratives</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 </head>
 <body>
     <div class="container">
-<div class="scroll-indicator"></div>
-<div class="floating-actions">
-    <button class="scroll-top-btn" title="Retour en haut">↑</button>
-</div>
+        <div class="scroll-indicator"></div>
+        <div class="floating-actions">
+            <button class="scroll-top-btn" title="Retour en haut">↑</button>
+        </div>
+
         <nav class="main-nav">
             <div class="logo">📖 Recettes Collaboratives</div>
             <div class="nav-links">
@@ -64,6 +64,10 @@
                         <input type="text" id="author" required>
                     </div>
                     <div class="form-group">
+                        <label for="image">Image de la recette</label>
+                        <input type="file" id="image" accept="image/*">
+                    </div>
+                    <div class="form-group">
                         <label for="difficulty">Difficulté</label>
                         <select id="difficulty" required>
                             <option value="1">1 - Très facile</option>
@@ -75,75 +79,40 @@
                     </div>
                     <div class="form-group">
                         <label for="ingredients">Ingrédients (format: quantité unité ingrédient)</label>
-                        <textarea id="ingredients" rows="4" required placeholder="200 g farine&#10;3 oeufs&#10;25 cl lait"></textarea>
+                        <textarea id="ingredients" rows="8" placeholder="Ex:\n200g farine\n2 oeufs\n250ml lait" required></textarea>
                     </div>
                     <div class="form-group">
-                        <label for="portions">Nombre de portions</label>
-                        <input type="number" id="portions" min="1" value="4" required>
+                        <label for="steps">Étapes de préparation (une étape par ligne)</label>
+                        <textarea id="steps" rows="10" placeholder="Ex:\nPréchauffer le four à 180°C\nMélanger les ingrédients secs\nAjouter les oeufs un par un" required></textarea>
                     </div>
                     <div class="form-group">
-                        <label for="steps">Étapes (une par ligne)</label>
-                        <textarea id="steps" rows="4" required></textarea>
+                        <label for="time">Temps de préparation (minutes)</label>
+                        <input type="number" id="time" required>
                     </div>
                     <div class="form-group">
-                        <label for="categories">Catégories</label>
-                        <select id="categories" multiple>
-                            <option value="Entrée">Entrée</option>
-                            <option value="Plat principal">Plat principal</option>
-                            <option value="Dessert">Dessert</option>
-                            <option value="Boisson">Boisson</option>
-                            <option value="Végétarien">Végétarien</option>
-                            <option value="Vegan">Vegan</option>
-                            <option value="Sans gluten">Sans gluten</option>
-                        </select>
+                        <label for="category">Catégorie</label>
+                        <input type="text" id="category" required>
                     </div>
                     <div class="form-group">
-                        <label for="prepTime">Temps de préparation (minutes)</label>
-                        <input type="number" id="prepTime" min="0" required>
+                        <button type="submit">Enregistrer</button>
+                        <button type="button" class="cancel-btn">Annuler</button>
                     </div>
-                    <div class="form-group">
-                        <label for="cookTime">Temps de cuisson (minutes)</label>
-                        <input type="number" id="cookTime" min="0" required>
-                    </div>
-                    <button type="submit">Ajouter la recette</button>
                 </form>
             </div>
         </div>
 
-        <!-- Conteneur des recettes -->
-        <div class="recipes-grid" id="recipes-container"></div>
-        
-        <!-- Modal des détails de la recette -->
-        <div id="recipe-details-modal" class="modal hidden">
-            <div class="modal-content recipe-details-content">
+        <!-- Section de listing des recettes -->
+        <div id="recipes-list" class="recipes-grid"></div>
+
+        <!-- Modal de détail de recette -->
+        <div id="detail-modal" class="modal hidden">
+            <div class="modal-content">
                 <button class="close-modal">×</button>
-                <div class="recipe-details">
-                    <h2 class="recipe-title"></h2>
-                    <div class="recipe-metadata">
-                        <span class="recipe-author"></span>
-                        <span class="recipe-time"></span>
-                        <span class="recipe-difficulty"></span>
-                    </div>
-                    <div class="recipe-ingredients">
-                        <h3>Ingrédients</h3>
-                        <ul class="ingredients-list"></ul>
-                    </div>
-                    <div class="recipe-steps">
-                        <h3>Instructions</h3>
-                        <ol class="steps-list"></ol>
-                    </div>
-                    <div class="comments-section">
-                        <h3>Commentaires</h3>
-                        <div class="comment-form">
-                            <textarea placeholder="Partagez votre expérience..." class="comment-input"></textarea>
-                            <button onclick="submitComment()" class="submit-btn">Publier</button>
-                        </div>
-                        <div id="comments-list"></div>
-                    </div>
-                </div>
+                <div id="recipe-detail" class="recipe-detail"></div>
             </div>
         </div>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>
