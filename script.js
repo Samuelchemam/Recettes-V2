@@ -1,7 +1,30 @@
-// AVANT - script.js original avant l'ajout des favoris
+// Global error handler
+window.addEventListener('error', (event) => {
+  try {
+    console.error('[GlobalError]', {
+      message: event?.message,
+      filename: event?.filename,
+      lineno: event?.lineno,
+      colno: event?.colno,
+      error: event?.error
+    });
+  } catch (e) {}
+});
 
-// Initialisation de Firebase
-const app = firebase.initializeApp({
+// Helpers DOM sécurisés
+const getById = (id) => { try { return document.getElementById(id) || null; } catch { return null; } };
+const qs = (sel, root=document) => { try { return (root && root.querySelector) ? root.querySelector(sel) : null; } catch { return null; } };
+const qsa = (sel, root=document) => { try { return (root && root.querySelectorAll) ? root.querySelectorAll(sel) : []; } catch { return []; } };
+const on = (el, ev, fn, opts) => { if (el && el.addEventListener) { try { el.addEventListener(ev, fn, opts); } catch(e){ console.error(e);} } };
+const safeSetHTML = (el, html) => { if (el) { try { el.innerHTML = html; } catch(e){ console.error(e);} } };
+const safeAppend = (el, child) => { if (el && child) { try { el.appendChild(child); } catch(e){ console.error(e);} } };
+const safeText = (el, text) => { if (el) { try { el.textContent = text; } catch(e){ console.error(e);} } };
+const safeValue = (el) => { try { return el ? el.value : ''; } catch { return ''; } };
+
+// Initialisation Firebase
+let app = null; let database = null;
+try {
+  app = firebase.initializeApp({
     apiKey: "AIzaSyAm_iCfNAKBb4KE_UhCDFq25ZA0Q0-MNfA",
     authDomain: "site-web-recettes.firebaseapp.com",
     databaseURL: "https://site-web-recettes-default-rtdb.europe-west1.firebasedatabase.app",
@@ -10,722 +33,249 @@ const app = firebase.initializeApp({
     messagingSenderId: "616026617837",
     appId: "1:616026617837:web:8de2604f97a5633094d9e4",
     measurementId: "G-9R9TMNM9JY"
-});
+  });
+  if (firebase.apps.length) console.log('Firebase est correctement initialisé'); else console.error("Erreur d'initialisation de Firebase");
+  try { database = firebase.database(); } catch(e){ console.error(e); }
+} catch(e) { console.error('Erreur init Firebase', e); }
 
-if (firebase.apps.length) {
-    console.log("Firebase est correctement initialisé");
-} else {
-    console.error("Erreur d'initialisation de Firebase");
-}
-
-const database = firebase.database();
 let recipes = [];
-const recipesContainer = document.getElementById('recipes-container');
-const recipeForm = document.getElementById('recipe-form');
+const recipesContainer = getById('recipes-container');
+const recipeForm = getById('recipe-form');
+const CATEGORIES = ['Entrée','Plat principal','Dessert','Boisson','Végétarien','Vegan','Sans gluten'];
 
-const CATEGORIES = [
-    'Entrée', 'Plat principal', 'Dessert', 'Boisson', 
-    'Végétarien', 'Vegan', 'Sans gluten'
-];
-
-function loadRecipes() {
-    showLoadingState();
-    database.ref('recipes').once('value', (snapshot) => {
-        recipes = [];
-        snapshot.forEach((childSnapshot) => {
-            const recipe = { id: childSnapshot.key, ...childSnapshot.val() };
-            recipes.push(recipe);
-        });
-        console.log("Catégories des recettes:", recipes.map(r => r.categories)); // Ajout ici
-        displayRecipes(recipes);
-        initializeFilters();
-    }, (error) => {
-        console.error("Erreur lors du chargement des recettes :", error);
-        showNotification("Erreur lors du chargement des recettes", "error");
+function loadRecipes(){
+  showLoadingState();
+  if (!database) return;
+  try {
+    database.ref('recipes').once('value', (snapshot)=>{
+      recipes = [];
+      snapshot.forEach((child)=>{
+        const val = child.val() || {};
+        const r = { id: child.key, ...val };
+        r.categories = Array.isArray(r.categories) ? r.categories : [];
+        r.ingredients = Array.isArray(r.ingredients) ? r.ingredients : [];
+        r.steps = Array.isArray(r.steps) ? r.steps : [];
+        r.prepTime = Number(r.prepTime||0);
+        r.cookTime = Number(r.cookTime||0);
+        r.difficulty = Number(r.difficulty||0);
+        r.portions = Number(r.portions||4);
+        r.title = r.title || '';
+        r.author = r.author || '';
+        recipes.push(r);
+      });
+      console.log('Catégories des recettes:', recipes.map(r=>r.categories));
+      displayRecipes(recipes);
+      initializeFilters();
+    }, (error)=>{
+      console.error('Erreur lors du chargement des recettes :', error);
+      showNotification('Erreur lors du chargement des recettes','error');
     });
+  } catch(e){ console.error(e); }
 }
-function displayRecipes(recipesToShow) {
-    if (!Array.isArray(recipesToShow)) {
-        console.error('recipesToShow n\'est pas un tableau:', recipesToShow);
-        recipesToShow = [];
-    }
-    try {
-        recipesContainer.innerHTML = '';  // Vider d'abord le conteneur
-        recipesToShow.forEach((recipe, index) => {
-            const recipeCard = document.createElement('div');
-            recipeCard.className = 'recipe-card';
-            recipeCard.setAttribute('data-expanded', 'false');
-            recipeCard.onclick = () => {
-                toggleExpand(index);
-            }
-            
-            recipeCard.innerHTML = `
-                <div class="card-header">
-                <div class="card-header">
-    <div class="card-header-top">
-        <h3>${recipe.title}</h3>
-        <button class="favorite-btn ${isRecipeFavorite(recipe.id) ? 'active' : ''}" 
-                onclick="toggleFavorite('${recipe.id}', '${recipe.title}'); event.stopPropagation()">
-            <i class="fas fa-heart"></i>
-        </button>
-    </div>
-</div>
-                    </div>
-                   <div class="difficulty-container">
-                    <span class="difficulty-label">Difficulté</span>
-                    <div class="difficulty">
-                    ${getDifficultyIcons(recipe.difficulty)}
-                      </div>
-                </div>
-                    <p class="author">Par ${recipe.author}</p>
-                    <div class="recipe-quick-info">
-                        <span class="time-badge ${getTimeClass(recipe.prepTime + recipe.cookTime)}">
-                            ${getTimeIcon(recipe.prepTime + recipe.cookTime)} 
-                            ${recipe.prepTime + recipe.cookTime} min
-                        </span>
-                    </div>
-                    <div class="categories-tags">
-                        ${recipe.categories ? recipe.categories.map(cat => 
-                            `<span class="category-tag" data-category="${cat}">${cat}</span>`
-                        ).join('') : ''}
-                    </div>
-                </div>
-                <div class="card-content">
-                    <div class="time-info">
-                        <p>⏲️ Préparation : ${recipe.prepTime} min</p>
-                        <p>🔥 Cuisson : ${recipe.cookTime} min</p>
-                    </div>
-                 <div class="ingredients-section">
-    <h4>Ingrédients :</h4>
-    <div class="portions-calculator">
-        <label>Nombre de personnes :</label>
-        <div class="portions-controls">
-            <button onclick="adjustPortions(${index}, 'decrease'); event.stopPropagation()">-</button>
-            <span class="portions-count">${recipe.portions || 4}</span>
-            <button onclick="adjustPortions(${index}, 'increase'); event.stopPropagation()">+</button>
+
+function displayRecipes(recipesToShow){
+  if (!Array.isArray(recipesToShow)) { console.error("recipesToShow n'est pas un tableau:", recipesToShow); recipesToShow = []; }
+  try {
+    if (recipesContainer) safeSetHTML(recipesContainer, '');
+    recipesToShow.forEach((recipe, index)=>{
+      const recipeCard = document.createElement('div');
+      recipeCard.className = 'recipe-card';
+      recipeCard.setAttribute('data-expanded','false');
+      recipeCard.onclick = ()=>{ try { toggleExpand(index); } catch(e){ console.error(e);} };
+
+      const safeCats = Array.isArray(recipe.categories) ? recipe.categories : [];
+      const totalTime = Number(recipe.prepTime||0)+Number(recipe.cookTime||0);
+      const portions = Number(recipe.portions||4);
+      const ingredientsHTML = Array.isArray(recipe.ingredients) ? recipe.ingredients.map(i=>{
+        try {
+          const parts = String(i).split(' ');
+          const quantity = parseFloat(parts[0]);
+          const unit = parts[1] || '';
+          const ingredient = parts.slice(2).join(' ');
+          if (!isNaN(quantity)) return `<li data-ingredient="${ingredient}" data-original-quantity="${quantity}" data-unit="${unit}">${quantity} ${unit} ${ingredient}</li>`;
+          return `${String(i)}`;
+        } catch { return String(i); }
+      }).join('') : '';
+      const stepsHTML = Array.isArray(recipe.steps) ? recipe.steps.map(s=>`${s}`).join('') : '';
+
+      recipeCard.innerHTML = `
+        <div class="card-header">
+          <div class="card-header">
+            <div class="card-header-top">
+              ${recipe.title || ''}
+              <button class="favorite-btn ${isRecipeFavorite(recipe.id)?'active':''}" onclick="toggleFavorite('${recipe.id}','${(recipe.title||'').replace(/'/g, "\\'")}'); event.stopPropagation()">
+                <i class="fas fa-heart"></i>
+              </button>
+            </div>
+          </div>
         </div>
-    </div>
-    <ul class="ingredients-list" data-base-portions="${recipe.portions || 4}">
-        ${recipe.ingredients.map(i => {
-            const parts = i.split(' ');
-            const quantity = parseFloat(parts[0]);
-            const unit = parts[1];
-            const ingredient = parts.slice(2).join(' ');
-            if (!isNaN(quantity)) {
-                return `<li data-original-quantity="${quantity}" data-unit="${unit}" data-ingredient="${ingredient}">${quantity} ${unit} ${ingredient}</li>`;
-            }
-            return `<li>${i}</li>`;
-        }).join('')}
-
-    </ul>
-</div>
-                    <div class="steps-section">
-                        <h4>Étapes :</h4>
-                        <ol>${recipe.steps.map(s => `<li>${s}</li>`).join('')}</ol>
-                    </div>
-                    <div class="card-actions">
-    <button class="action-btn comments-btn" onclick="showRecipeDetails(${JSON.stringify(recipe).replace(/"/g, '&quot;')}); event.stopPropagation()">
-        <i class="fas fa-comments"></i> Commentaires
-    </button>
-    <button class="action-btn edit-btn" onclick="editRecipe(${index}); event.stopPropagation()">
-        <i class="fas fa-edit"></i> Modifier
-    </button>
-    <button class="action-btn delete-btn" onclick="deleteRecipe(${index}); event.stopPropagation()">
-        <i class="fas fa-trash-alt"></i> Supprimer
-    </button>
-</div>
-            `;
-            
-            recipesContainer.appendChild(recipeCard);
-        });
-        animateDifficultyStars();
-    } catch (e) {
-        console.error("Erreur lors de l'affichage des recettes :", e);
-        showNotification("Erreur d'affichage", "error");
-    }
-}
-// Autres fonctions existantes...
-function toggleTheme() {
-    document.body.classList.toggle('dark-mode');
-}
-
-// Formulaire d'ajout de recette
-recipeForm.addEventListener('submit', function(event) {
-    event.preventDefault();
-    const recipe = {
-        title: document.getElementById('title').value,
-        author: document.getElementById('author').value,
-        difficulty: parseInt(document.getElementById('difficulty').value),
-        ingredients: document.getElementById('ingredients').value.split('\n').filter(i => i.trim()),
-        steps: document.getElementById('steps').value.split('\n').filter(s => s.trim()),
-        date: new Date().toLocaleDateString(),
-        categories: Array.from(document.getElementById('categories').selectedOptions).map(option => option.value),
-        prepTime: parseInt(document.getElementById('prepTime').value) || 0,
-        cookTime: parseInt(document.getElementById('cookTime').value) || 0,
-        portions: parseInt(document.getElementById('portions').value) || 4
-    };
-
-    database.ref('recipes').push(recipe, (error) => {
-        if (error) {
-            console.error("Erreur lors de l'ajout de la recette :", error);
-        } else {
-            loadRecipes();
-            recipeForm.reset();
-            document.getElementById('recipe-modal').classList.add('hidden');
-        }
-    });
-});
-
-// Initialisation
-document.addEventListener('DOMContentLoaded', () => {
-    loadRecipes();
-    initializeFilters();
-    
-    const addRecipeBtn = document.getElementById('add-recipe-btn');
-    const modal = document.getElementById('recipe-modal');
-    const closeModal = document.querySelector('.close-modal');
-    const filterToggle = document.querySelector('.filter-toggle');
-    const filtersSection = document.querySelector('.filters-section');
-
-    addRecipeBtn.addEventListener('click', () => {
-        modal.classList.remove('hidden');
-    });
-
-    closeModal.addEventListener('click', () => {
-        modal.classList.add('hidden');
-    });
-
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            modal.classList.add('hidden');
-        }
-    });
-
-    filterToggle.addEventListener('click', () => {
-        filtersSection.classList.toggle('hidden');
-    });
-});// Fonctions de gestion des recettes
-function toggleExpand(index) {
-    const card = document.querySelectorAll('.recipe-card')[index];
-    const isExpanded = card.getAttribute('data-expanded') === 'true';
-    
-    card.setAttribute('data-expanded', !isExpanded);
-    card.classList.toggle('expanded');
-}
-
-function deleteRecipe(index) {
-    const recipeId = recipes[index].id;
-    
-    if (confirm("Supprimer cette recette ?")) {
-        database.ref('recipes/' + recipeId).remove().then(() => {
-            loadRecipes();
-        }).catch((error) => {
-            console.error("Erreur lors de la suppression de la recette :", error);
-        });
-    }
-}
-
-function editRecipe(index) {
-    const recipe = recipes[index];
-    const card = document.querySelectorAll('.recipe-card')[index];
-    
-    const editForm = `
-        <div class="edit-form" onclick="event.stopPropagation()">
-            <div class="form-group">
-                <label for="edit-title">Titre</label>
-                <input type="text" class="edit-title" value="${recipe.title}" onclick="event.stopPropagation()">
-            </div>
-            
-            <div class="form-group">
-                <label for="edit-author">Auteur</label>
-                <input type="text" class="edit-author" value="${recipe.author}" onclick="event.stopPropagation()">
-            </div>
-            
-            <div class="form-group">
-                <label for="edit-difficulty">Difficulté</label>
-                <select class="edit-difficulty" onclick="event.stopPropagation()">
-                    ${[1, 2, 3, 4, 5].map(n => `
-                        <option value="${n}" ${n === recipe.difficulty ? 'selected' : ''}>${n}</option>
-                    `).join('')}
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="edit-categories">Catégories</label>
-                <select class="edit-categories" multiple onclick="event.stopPropagation()">
-                    ${CATEGORIES.map(cat => `
-                        <option value="${cat}" ${recipe.categories?.includes(cat) ? 'selected' : ''}>${cat}</option>
-                    `).join('')}
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="edit-prepTime">Temps de préparation (minutes)</label>
-                <input type="number" class="edit-prepTime" value="${recipe.prepTime || 0}" min="0" onclick="event.stopPropagation()">
-            </div>
-
-            <div class="form-group">
-                <label for="edit-cookTime">Temps de cuisson (minutes)</label>
-                <input type="number" class="edit-cookTime" value="${recipe.cookTime || 0}" min="0" onclick="event.stopPropagation()">
-            </div>
-
-            <div class="form-group">
-    <label for="edit-ingredients">Ingrédients (un par ligne)</label>
-    <div class="portions-calculator">
-        <label>Nombre de personnes :</label>
-        <div class="portions-controls">
-            <button onclick="adjustPortionsEdit(${index}, 'decrease'); event.stopPropagation()">-</button>
-            <span class="portions-count-edit">${recipe.portions || 4}</span>
-            <button onclick="adjustPortionsEdit(${index}, 'increase'); event.stopPropagation()">+</button>
+        <div class="difficulty-container">
+          <span class="difficulty-label">Difficulté</span>
+          <div class="difficulty">${getDifficultyIcons(Number(recipe.difficulty||0))}</div>
         </div>
-    </div>
-    <textarea class="edit-ingredients" rows="4" onclick="event.stopPropagation()" data-base-portions="${recipe.portions || 4}">${recipe.ingredients.join('\n')}</textarea>
-</div>
-            
-            <div class="form-group">
-                <label for="edit-steps">Étapes (un par ligne)</label>
-                <textarea class="edit-steps" rows="4" onclick="event.stopPropagation()">${recipe.steps.join('\n')}</textarea>
-            </div>
-            
-            <button onclick="saveEdit(${index}); event.stopPropagation()">💾 Enregistrer</button>
-            <button onclick="displayRecipes(recipes); event.stopPropagation()" class="cancel-btn">❌ Annuler</button>
+        <p class="author">Par ${recipe.author || ''}</p>
+        <div class="recipe-quick-info">
+          <span class="time-badge ${getTimeClass(totalTime)}">${getTimeIcon(totalTime)} ${totalTime} min</span>
         </div>
-    `;
-    
-    card.querySelector('.card-content').innerHTML = editForm;
+        <div class="categories-tags">${safeCats.map(cat=>`<span class="category-tag" data-category="${cat}">${cat}</span>`).join('')}</div>
+        <div class="card-content">
+          <div class="time-info">⏲️ Préparation : ${Number(recipe.prepTime||0)} min 🔥 Cuisson : ${Number(recipe.cookTime||0)} min</div>
+          <div class="ingredients-section">
+            Ingrédients :
+            <div class="portions-calculator">
+              Nombre de personnes :
+              <div class="portions-controls">
+                <button onclick="adjustPortions(${index}, 'decrease'); event.stopPropagation()">-</button>
+                <span class="portions-count">${portions}</span>
+                <button onclick="adjustPortions(${index}, 'increase'); event.stopPropagation()">+</button>
+              </div>
+            </div>
+            <ul class="ingredients-list" data-base-portions="${portions}">${ingredientsHTML}</ul>
+          </div>
+          <div class="steps-section">Étapes : ${stepsHTML}</div>
+          <div class="card-actions">
+            <button class="action-btn comments-btn" onclick="showRecipeDetails(${JSON.stringify({ ...recipe, id: recipe.id })}); event.stopPropagation()"><i class="fas fa-comments"></i> Commentaires</button>
+            <button class="action-btn edit-btn" onclick="editRecipe(${index}); event.stopPropagation()"><i class="fas fa-edit"></i> Modifier</button>
+            <button class="action-btn delete-btn" onclick="deleteRecipe(${index}); event.stopPropagation()"><i class="fas fa-trash-alt"></i> Supprimer</button>
+          </div>
+        </div>`;
+
+      safeAppend(recipesContainer, recipeCard);
+    });
+    animateDifficultyStars();
+  } catch(e){ console.error("Erreur lors de l'affichage des recettes :", e); showNotification('Erreur d\'affichage','error'); }
 }
 
-function saveEdit(index) {
-    const card = document.querySelectorAll('.recipe-card')[index];
-    const recipeId = recipes[index].id;
+function toggleTheme(){ try { document.body?.classList?.toggle('dark-mode'); } catch(e){ console.error(e);} }
 
-    const updatedRecipe = {
-        title: card.querySelector('.edit-title').value,
-        author: card.querySelector('.edit-author').value,
-        difficulty: parseInt(card.querySelector('.edit-difficulty').value),
-        categories: Array.from(card.querySelector('.edit-categories').selectedOptions).map(option => option.value),
-        prepTime: parseInt(card.querySelector('.edit-prepTime').value) || 0,
-        cookTime: parseInt(card.querySelector('.edit-cookTime').value) || 0,
-        ingredients: card.querySelector('.edit-ingredients').value.split('\n').filter(i => i.trim()),
-        steps: card.querySelector('.edit-steps').value.split('\n').filter(s => s.trim()),
-        date: new Date().toLocaleDateString()
-    };
-
-    database.ref('recipes/' + recipeId).update(updatedRecipe).then(() => {
+// Formulaire d'ajout
+if (recipeForm) on(recipeForm,'submit',function(event){
+  try { event?.preventDefault?.(); } catch{}
+  const recipe = {
+    title: safeValue(getById('title')),
+    author: safeValue(getById('author')),
+    difficulty: parseInt(safeValue(getById('difficulty'))) || 0,
+    ingredients: safeValue(getById('ingredients')).split('\n').filter(i=>i && i.trim()),
+    steps: safeValue(getById('steps')).split('\n').filter(s=>s && s.trim()),
+    date: new Date().toLocaleDateString(),
+    categories: (getById('categories')?.selectedOptions ? Array.from(getById('categories').selectedOptions).map(o=>o.value) : []),
+    prepTime: parseInt(safeValue(getById('prepTime'))) || 0,
+    cookTime: parseInt(safeValue(getById('cookTime'))) || 0,
+    portions: parseInt(safeValue(getById('portions'))) || 4
+  };
+  if (!database) return;
+  try {
+    database.ref('recipes').push(recipe, (error)=>{
+      if (error) {
+        console.error('Erreur lors de l\'ajout de la recette :', error);
+      } else {
         loadRecipes();
-    }).catch((error) => {
-        console.error("Erreur lors de la mise à jour de la recette :", error);
+        try { recipeForm.reset?.(); } catch{}
+        const modal = getById('recipe-modal');
+        modal?.classList?.add('hidden');
+      }
     });
-}
-
-// Fonctions de recherche et filtres
-function searchRecipes() {
-    const searchTerm = document.querySelector('.search-bar').value.toLowerCase();
-    const filteredRecipes = recipes.filter(recipe => 
-        recipe.title.toLowerCase().includes(searchTerm) ||
-        recipe.ingredients.some(i => i.toLowerCase().includes(searchTerm))
-    );
-    displayRecipes(filteredRecipes);
-}
-
-function initializeFilters() {
-    const filterCategory = document.querySelector('.filter-category');
-    const filterDifficulty = document.querySelector('.filter-difficulty');
-    const filterTime = document.querySelector('.filter-time');
-    
-    filterCategory.innerHTML = '<option value="">Toutes les catégories</option>';
-    filterDifficulty.innerHTML = '<option value="">Toutes les difficultés</option>';
-    filterTime.innerHTML = '<option value="">Tous les temps</option>';
-
-    CATEGORIES.forEach(category => {
-        const option = document.createElement('option');
-        option.value = category;
-        option.textContent = category;
-        filterCategory.appendChild(option);
-    });
-
-    const difficulties = [
-        { value: "1", label: "Très facile" },
-        { value: "2", label: "Facile" },
-        { value: "3", label: "Moyen" },
-        { value: "4", label: "Difficile" },
-        { value: "5", label: "Très difficile" }
-    ];
-    
-    difficulties.forEach(diff => {
-        const option = document.createElement('option');
-        option.value = diff.value;
-        option.textContent = diff.label;
-        filterDifficulty.appendChild(option);
-    });
-
-    const timeRanges = [
-        { value: "15", label: "< 15 min" },
-        { value: "30", label: "< 30 min" },
-        { value: "60", label: "< 1h" },
-        { value: "61", label: "> 1h" }
-    ];
-    
-    timeRanges.forEach(time => {
-        const option = document.createElement('option');
-        option.value = time.value;
-        option.textContent = time.label;
-        filterTime.appendChild(option);
-    });
-
-    [filterCategory, filterDifficulty, filterTime].forEach(filter => {
-        filter.addEventListener('change', applyFilters);
-    });
-
-    const clearFiltersBtn = document.querySelector('.clear-filters');
-    if (clearFiltersBtn) {
-        clearFiltersBtn.addEventListener('click', () => {
-            filterCategory.value = '';
-            filterDifficulty.value = '';
-            filterTime.value = '';
-            displayRecipes(recipes);
-        });
-    }
-}
-
-function adjustPortions(recipeIndex, action) {
-    const card = document.querySelectorAll('.recipe-card')[recipeIndex];
-    const portionsElement = card.querySelector('.portions-count');
-    const ingredientsList = card.querySelector('.ingredients-list');
-    const basePortions = parseInt(ingredientsList.dataset.basePortions);
-    let currentPortions = parseInt(portionsElement.textContent);
-
-    if (action === 'increase') {
-        currentPortions++;
-    } else if (action === 'decrease' && currentPortions > 1) {
-        currentPortions--;
-    }
-
-    portionsElement.textContent = currentPortions;
-    
-    const items = ingredientsList.querySelectorAll('li[data-original-quantity]');
-    items.forEach(item => {
-        const originalQuantity = parseFloat(item.dataset.originalQuantity);
-        const unit = item.dataset.unit;
-        const ingredient = item.dataset.ingredient;
-        if (!isNaN(originalQuantity)) {
-            const newQuantity = (originalQuantity * currentPortions / basePortions).toFixed(1);
-            item.textContent = `${newQuantity} ${unit} ${ingredient}`;
-        }
-    });
-}
-function applyFilters() {
-    const category = document.querySelector('.filter-category').value;
-    const difficulty = document.querySelector('.filter-difficulty').value;
-    const time = document.querySelector('.filter-time').value;
-
-    let filteredRecipes = [...recipes];
-
-    if (category) {
-        filteredRecipes = filteredRecipes.filter(recipe => 
-            recipe.categories && recipe.categories.includes(category));
-    }
-
-    if (difficulty) {
-        filteredRecipes = filteredRecipes.filter(recipe => 
-            recipe.difficulty === parseInt(difficulty));
-    }
-
-    if (time) {
-        filteredRecipes = filteredRecipes.filter(recipe => {
-            const totalTime = recipe.prepTime + recipe.cookTime;
-            if (time === "61") {
-                return totalTime > 60;
-            }
-            return totalTime <= parseInt(time);
-        });
-    }
-
-    displayRecipes(filteredRecipes);
-}
-
-// Animations et UI
-function animateDifficultyStars() {
-    document.querySelectorAll('.difficulty').forEach(star => {
-        star.addEventListener('mouseover', () => {
-            star.style.animation = 'sparkle 0.6s ease-out';
-        });
-        star.addEventListener('animationend', () => {
-            star.style.animation = '';
-        });
-    });
-}
-
-function showLoadingState() {
-    recipesContainer.innerHTML = Array(6).fill(`
-        <div class="recipe-card loading-skeleton">
-            <div class="skeleton-header"></div>
-            <div class="skeleton-body"></div>
-        </div>
-    `).join('');
-}
-
-function showNotification(message, type = 'success') {
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    notification.textContent = message;
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-        notification.remove();
-    }, 3000);
-}
-function getTimeClass(totalTime) {
-    if (totalTime <= 30) return 'quick-recipe';
-    if (totalTime <= 60) return 'medium-recipe';
-    return 'long-recipe';
-}
-
-function getTimeIcon(totalTime) {
-    if (totalTime <= 30) return '⚡'; // rapide
-    if (totalTime <= 60) return '⏱️'; // moyen
-    return '🕐'; // long
-}
-function getDifficultyIcons(level) {
-    const icons = {
-        1: '<i class="fas fa-coffee" title="Très facile"></i>',
-        2: '<i class="fas fa-egg" title="Facile"></i>',
-        3: '<i class="fas fa-utensils" title="Intermédiaire"></i>',
-        4: '<i class="fas fa-concierge-bell" title="Difficile"></i>',
-        5: '<i class="fas fa-fire" title="Expert"></i>'
-    };
-    let result = '';
-    for (let i = 1; i <= 5; i++) {
-        if (i <= level) {
-            result += icons[i];
-        } else {
-            result += '<i class="far fa-circle"></i>';
-        }
-    }
-    return result;
-}
-// Gestion de l'indicateur de scroll et du bouton retour en haut
-document.addEventListener('DOMContentLoaded', function() {
-    const scrollIndicator = document.querySelector('.scroll-indicator');
-    const scrollTopBtn = document.querySelector('.scroll-top-btn');
-
-    // Mise à jour de l'indicateur de scroll
-    window.addEventListener('scroll', function() {
-        const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
-        const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-        const scrolled = (winScroll / height) * 100;
-        scrollIndicator.style.width = scrolled + '%';
-
-        // Afficher/cacher le bouton retour en haut
-        if (winScroll > 300) {
-            scrollTopBtn.style.display = 'block';
-        } else {
-            scrollTopBtn.style.display = 'none';
-        }
-    });
-
-    // Action du bouton retour en haut
-    scrollTopBtn.addEventListener('click', function() {
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-        });
-    });
+  } catch(e){ console.error(e); }
 });
-// Gestion des favoris
-function isRecipeFavorite(recipeId) {
-    const favorites = JSON.parse(localStorage.getItem('favorites') || '{}');
-    return !!favorites[recipeId];
+
+// DOMContentLoaded
+on(document,'DOMContentLoaded',()=>{
+  loadRecipes();
+  initializeFilters();
+
+  const addRecipeBtn = getById('add-recipe-btn');
+  const modal = getById('recipe-modal');
+  const closeModal = qs('.close-modal');
+  const filterToggle = qs('.filter-toggle');
+  const filtersSection = qs('.filters-section');
+
+  if (addRecipeBtn && modal) on(addRecipeBtn,'click',()=>{ modal.classList?.remove('hidden'); });
+  if (closeModal && modal) on(closeModal,'click',()=>{ modal.classList?.add('hidden'); });
+  if (modal) on(modal,'click',(e)=>{ if (e?.target === modal) { modal.classList?.add('hidden'); } });
+  if (filterToggle && filtersSection) on(filterToggle,'click',()=>{ filtersSection.classList?.toggle('hidden'); });
+});
+
+// Fonctions de gestion des recettes
+function toggleExpand(index){
+  const card = qsa('.recipe-card')[index];
+  if (!card) return;
+  try {
+    const isExpanded = card.getAttribute?.('data-expanded') === 'true';
+    card.setAttribute?.('data-expanded', (!isExpanded).toString());
+    card.classList?.toggle('expanded');
+  } catch(e){ console.error(e);} 
 }
 
-function toggleFavorite(recipeId, recipeTitle) {
-    const favorites = JSON.parse(localStorage.getItem('favorites') || '{}');
-    
-    if (favorites[recipeId]) {
-        delete favorites[recipeId];
-        showNotification(`${recipeTitle} retiré des favoris`, 'info');
-    } else {
-        favorites[recipeId] = {
-            title: recipeTitle,
-            dateAdded: new Date().toISOString()
-        };
-        showNotification(`${recipeTitle} ajouté aux favoris`, 'success');
+function deleteRecipe(index){
+  const recipeId = recipes[index]?.id;
+  if (!recipeId || !database) return;
+  try {
+    if (confirm('Supprimer cette recette ?')) {
+      database.ref('recipes/'+recipeId).remove().then(()=>{ loadRecipes(); }).catch((error)=>{ console.error('Erreur lors de la suppression de la recette :', error); });
     }
-    
-    localStorage.setItem('favorites', JSON.stringify(favorites));
-    
-    // Mise à jour visuelle du bouton
-    const favoriteBtn = document.querySelector(`[onclick*="${recipeId}"]`);
-    if (favoriteBtn) {
-        favoriteBtn.classList.toggle('active');
-    }
-}
-let showingFavorites = false;
-
-function toggleFavoritesView() {
-    showingFavorites = !showingFavorites;
-    const favBtn = document.querySelector('.favorites-toggle');
-    favBtn.classList.toggle('active');
-    
-    if (showingFavorites) {
-        const favorites = JSON.parse(localStorage.getItem('favorites') || '{}');
-        const favoriteRecipes = recipes.filter(recipe => favorites[recipe.id]);
-        displayRecipes(favoriteRecipes);
-    } else {
-        displayRecipes(recipes);
-    }
-}
-// Configuration Firebase pour les commentaires
-let currentRecipeId = null;
-
-// Fonction pour soumettre un commentaire
-function submitComment() {
-    if (!currentRecipeId) {
-        showNotification('Erreur lors de l\'ajout du commentaire', 'error');
-        return;
-    }
-
-    const commentInput = document.querySelector('.comment-input');
-    const commentText = commentInput.value.trim();
-    
-    if (!commentText) {
-        showNotification('Veuillez écrire un commentaire', 'error');
-        return;
-    }
-
-    const newComment = {
-        text: commentText,
-        date: new Date().toISOString(),
-        timestamp: firebase.database.ServerValue.TIMESTAMP,
-        likes: 0
-    };
-
-    // Sauvegarde dans Firebase
-    firebase.database()
-        .ref('comments/' + currentRecipeId)
-        .push(newComment)
-        .then(() => {
-            commentInput.value = '';
-            showNotification('Commentaire publié !', 'success');
-            loadComments(currentRecipeId);
-        })
-        .catch(error => {
-            showNotification('Erreur lors de la publication', 'error');
-            console.error(error);
-        });
+  } catch(e){ console.error(e);} 
 }
 
-// Fonction pour charger les commentaires
-function loadComments(recipeId) {
-    currentRecipeId = recipeId;
-    const commentsList = document.getElementById('comments-list');
-    commentsList.innerHTML = '<div class="loading">Chargement des commentaires...</div>';
-
-    firebase.database()
-        .ref('comments/' + recipeId)
-        .orderByChild('timestamp')
-        .on('value', (snapshot) => {
-            commentsList.innerHTML = '';
-            
-            if (!snapshot.exists()) {
-                commentsList.innerHTML = '<div class="no-comments">Soyez le premier à commenter !</div>';
-                return;
-            }
-
-            // Convertir les données en tableau et inverser l'ordre
-            const comments = [];
-            snapshot.forEach((childSnapshot) => {
-                comments.push({
-                    id: childSnapshot.key,
-                    ...childSnapshot.val()
-                });
-            });
-            comments.reverse();
-
-            // Afficher les commentaires
-            comments.forEach(comment => {
-                const date = new Date(comment.date).toLocaleDateString('fr-FR', {
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-
-                const commentElement = `
-                    <div class="comment" data-id="${comment.id}">
-                        <div class="comment-header">
-                            <span class="comment-date">${date}</span>
-                            <button onclick="likeComment('${recipeId}', '${comment.id}', ${comment.likes})" class="like-btn">
-                                ❤️ ${comment.likes || 0}
-                            </button>
-                        </div>
-                        <p class="comment-text">${comment.text}</p>
-                    </div>
-                `;
-                commentsList.innerHTML += commentElement;
-            });
-        });
-}
-
-// Fonction pour liker un commentaire
-function likeComment(recipeId, commentId, currentLikes) {
-    firebase.database()
-        .ref(`comments/${recipeId}/${commentId}/likes`)
-        .set(currentLikes + 1)
-        .then(() => {
-            showNotification('Like ajouté !', 'success');
-        })
-        .catch(error => {
-            showNotification('Erreur lors du like', 'error');
-            console.error(error);
-        });
-}
-
-function showRecipeDetails(recipe) {
-    const modal = document.getElementById('recipe-details-modal');
-    modal.classList.remove('hidden');
-
-    // Remplir les détails de la recette
-    const detailsContent = `
-        <h2 class="recipe-title">${recipe.title}</h2>
-        <div class="recipe-metadata">
-            <span class="recipe-author">Par ${recipe.author}</span>
-            <span class="recipe-time">⏱️ Total: ${recipe.prepTime + recipe.cookTime} min</span>
-            <div class="recipe-difficulty">${getDifficultyIcons(recipe.difficulty)}</div>
+function editRecipe(index){
+  const recipe = recipes[index] || {};
+  const card = qsa('.recipe-card')[index];
+  if (!card) return;
+  const portions = Number(recipe.portions||4);
+  const editForm = `
+    <div class="edit-form" onclick="event.stopPropagation()">
+      <div class="form-group"><label for="edit-title">Titre</label>
+        <input class="edit-title" type="text" value="${recipe.title||''}" onclick="event.stopPropagation()"/>
+      </div>
+      <div class="form-group"><label for="edit-author">Auteur</label>
+        <input class="edit-author" type="text" value="${recipe.author||''}" onclick="event.stopPropagation()"/>
+      </div>
+      <div class="form-group"><label for="edit-difficulty">Difficulté</label>
+        <select class="edit-difficulty" onclick="event.stopPropagation()">
+          ${[1,2,3,4,5].map(n=>`<option value="${n}" ${Number(recipe.difficulty)==n?'selected':''}>${n}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label for="edit-categories">Catégories</label>
+        <select class="edit-categories" multiple onclick="event.stopPropagation()">
+          ${CATEGORIES.map(cat=>`<option value="${cat}" ${Array.isArray(recipe.categories)&&recipe.categories.includes(cat)?'selected':''}>${cat}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label for="edit-prepTime">Temps de préparation (minutes)</label>
+        <input class="edit-prepTime" type="number" min="0" value="${Number(recipe.prepTime||0)}" onclick="event.stopPropagation()"/>
+      </div>
+      <div class="form-group"><label for="edit-cookTime">Temps de cuisson (minutes)</label>
+        <input class="edit-cookTime" type="number" min="0" value="${Number(recipe.cookTime||0)}" onclick="event.stopPropagation()"/>
+      </div>
+      <div class="form-group"><label for="edit-ingredients">Ingrédients (un par ligne)</label>
+        <div class="portions-calculator">Nombre de personnes :
+          <div class="portions-controls">
+            <button onclick="adjustPortionsEdit(${index}, 'decrease'); event.stopPropagation()">-</button>
+            <span class="portions-count-edit">${portions}</span>
+            <button onclick="adjustPortionsEdit(${index}, 'increase'); event.stopPropagation()">+</button>
+          </div>
         </div>
-        <div class="recipe-ingredients">
-            <h3>Ingrédients</h3>
-            <ul class="ingredients-list">
-                ${recipe.ingredients.map(ingredient => `<li>${ingredient}</li>`).join('')}
-            </ul>
-        </div>
-        <div class="recipe-steps">
-            <h3>Instructions</h3>
-            <ol class="steps-list">
-                ${recipe.steps.map(step => `<li>${step}</li>`).join('')}
-            </ol>
-        </div>
-        <div class="comments-section">
-            <h3>Commentaires</h3>
-            <div class="comment-form">
-                <textarea placeholder="Partagez votre expérience..." class="comment-input"></textarea>
-                <button onclick="submitComment()" class="submit-btn">Publier</button>
-            </div>
-            <div id="comments-list"></div>
-        </div>
-    `;
-
-    document.querySelector('.recipe-details').innerHTML = detailsContent;
-    loadComments(recipe.id);
-
-    // Gestionnaires de fermeture
-    const closeBtn = modal.querySelector('.close-modal');
-    closeBtn.onclick = () => modal.classList.add('hidden');
-    
-    modal.onclick = (e) => {
-        if (e.target === modal) {
-            modal.classList.add('hidden');
-        }
-    };
+        <textarea class="edit-ingredients" rows="4" data-base-portions="${portions}" onclick="event.stopPropagation()">${Array.isArray(recipe.ingredients)?recipe.ingredients.join('\n'):''}</textarea>
+      </div>
+      <div class="form-group"><label for="edit-steps">Étapes (un par ligne)</label>
+        <textarea class="edit-steps" rows="4" onclick="event.stopPropagation()">${Array.isArray(recipe.steps)?recipe.steps.join('\n'):''}</textarea>
+      </div>
+      <button onclick="saveEdit(${index}); event.stopPropagation()">💾 Enregistrer</button>
+      <button class="cancel-btn" onclick="displayRecipes(recipes); event.stopPropagation()">❌ Annuler</button>
+    </div>`;
+  try {
+    const content = qs('.card-content', card);
+    safeSetHTML(content, editForm);
+  } catch(e){ console.error(e);} 
 }
+
+function saveEdit(index){
+  const card = qsa('.recipe-card')[index];
+  const recipeId = recipes[index]?.id;
+  if (!card || !recipeId || !database) return;
+  try {
+    const updatedRecipe = {
+      title: qs('.edit-title', card)?.value || '',
+      author: qs('.edit-author', card)?.value || '',
+      difficulty: parseInt(qs('.edit-difficulty', card)?.value) || 0,
+      categories: (qs('.edit-categories', card)?.selectedOptions ? Array.from(qs('.edit-categories', card).selectedOptions).map(o=>o.value) : []),
+      prepTime: parseInt(qs('.edit-prepTime', card)?.value) || 0,
+     
